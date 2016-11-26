@@ -11,41 +11,41 @@ class Window
 {
     public:
         // Constructor: assigns title of the window, width of the window, and height of the window
-        Window(std::string windowTitle, int windowWidth, int windowHeight);
+        Window(std::string t, int w, int h);
 
         // Destructor: destroys the window handle and frees up the OpenGL context
         ~Window();
 
         // Initialises SDL, creates the window, and the OpenGL context
-        bool InitializeWindow();
+        bool Initialise();
 
         // Changes the height and width variables, and makes a call to glViewport()
-        void ResizeWindow(int windowWidth, int windowHeight);
+        void Resize(int windowWidth, int windowHeight);
 
         // Get method for the window handle
-        SDL_Window* GetWindowHandle();
+        SDL_Window* GetHandle();
 
         // Get method for window width
-        int GetWindowWidth();
+        int GetWidth();
 
         // Get method for window height
-        int GetWindowHeight();
+        int GetHeight();
 
     private:
         // Title of the window
-        std::string m_windowTitle;
+        std::string m_title;
 
         // Width of the window
-        int m_windowWidth;
+        int m_w;
 
         // Height of the window
-        int m_windowHeight;
+        int m_h;
 
         // Window handle
-        SDL_Window* m_windowHandle;
+        SDL_Window* m_wnd;
 
         // OpenGL context
-        SDL_GLContext m_windowContext;
+        SDL_GLContext m_context;
 };
 
 #endif // WINDOW_H

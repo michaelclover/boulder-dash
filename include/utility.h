@@ -12,6 +12,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cstdint>
+
+#include "defines.h"
 
 // Sets necessary OpenGL states, the viewport, and the projection matrix
 void InitializeGL(int width, int height);
@@ -20,7 +23,10 @@ void InitializeGL(int width, int height);
 void InitializeDevIL();
 
 // Receives an integer and renders it as string
-void UtilityRenderText(int numbersToDraw, GLuint &textureID, float cellWidth, float cellHeight);
+void UtilityRenderText(int num, GLuint &texID, float cw, float ch);
+
+// Receives a string and renders it
+void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch);
 
 // Returns coordinates of requested character
 float* GetTextCoordinates(char requestedChar);
@@ -29,17 +35,25 @@ float* GetTextCoordinates(char requestedChar);
 struct Coordinates
 {
     public:
-        float m_xLocation;
-        float m_yLocation;
+        int m_x;
+        int m_y;
 };
 
-struct TextureCoordinates
+// Types of sprites available in our game
+enum class SpriteType : uint8_t
 {
-    public:
-        float m_topLeft;
-        float m_topRight;
-        float m_bottomLeft;
-        float m_bottomRight;
+  Dirt,
+  Nothing,
+  Wall,
+  Boulder,
+  Coin,
+  Exit,
+  Impassable,
+  Player,
+  Amoeba,
+  Magicwall,
+  Butterfly,
+  Firefly
 };
 
 #endif // UTILITY_H

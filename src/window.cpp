@@ -1,63 +1,60 @@
 #include "window.h"
 
-// Gather window information
-Window::Window(std::string windowTitle, int windowWidth, int windowHeight)
+Window::Window(std::string t, int w, int h)
 {
-    m_windowTitle = windowTitle;
-    m_windowWidth = windowWidth;
-    m_windowHeight = windowHeight;
+    m_title = t;
+    m_w = w;
+    m_h = h;
 }
 
-// Properly clean up the window
 Window::~Window()
 {
-    SDL_GL_DeleteContext(m_windowContext);
-    SDL_DestroyWindow(m_windowHandle);
+    SDL_GL_DeleteContext(m_context);
+    SDL_DestroyWindow(m_wnd);
 }
 
-bool Window::InitializeWindow()
+bool Window::Initialise()
 {
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
-        std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1; // Indicate failure
     }
 
-    m_windowHandle = SDL_CreateWindow(m_windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_windowWidth, m_windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED);
-    if(m_windowHandle == nullptr)
+    m_wnd = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_w, m_w, SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
+    if(m_wnd == nullptr)
     {
-        std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
         return 1; // Indicate failure
     }
 
-	m_windowContext = SDL_GL_CreateContext(m_windowHandle);
-	if(m_windowContext == NULL)
+	m_context = SDL_GL_CreateContext(m_wnd);
+	if(m_context == NULL)
 	{
-		std::cout << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
+		std::cerr << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
 		return 1; // Indicate failure
 	}
 
     return 0; // Indicate success
 }
 
-void Window::ResizeWindow(int windowWidth, int windowHeight)
+void Window::Resize(int windowWidth, int windowHeight)
 {
-    m_windowWidth = windowWidth;
-    m_windowHeight = windowHeight;
+    m_w = windowWidth;
+    m_h = windowHeight;
 }
 
-SDL_Window* Window::GetWindowHandle()
+SDL_Window* Window::GetHandle()
 {
-    return m_windowHandle;
+    return m_wnd;
 }
 
-int Window::GetWindowWidth()
+int Window::GetWidth()
 {
-    return m_windowWidth;
+    return m_w;
 }
 
-int Window::GetWindowHeight()
+int Window::GetHeight()
 {
-    return m_windowHeight;
+    return m_h;
 }
-

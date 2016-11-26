@@ -4,147 +4,182 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
 #include "utility.h"
 
-class Dirt
+class Sprite
 {
-    public:
-        // Construct game objects by providing x and y coordinates
-        Dirt(float xLocation, float yLocation);
+public:
+  // Methods
+  Sprite(GLuint *texID, SpriteType &t, float &x, float &y)
+  {
+    m_textureID = texID;
+    m_coordinates.m_x = x;
+    m_coordinates.m_y = y;
+    m_type = t;
+  }
+  virtual ~Sprite() {}
+  virtual void Draw(float cw, float ch) = 0;
 
-        // Does not do much right now
-        ~Dirt();
-
-        // Generic draw function that all sprites use
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-
-        // Stores game object coordinates; see: utility.h
-        Coordinates m_coordinates;
+  // Members
+  Coordinates m_coordinates;
+  GLuint* m_textureID;
+  SpriteType m_type;
 };
 
-class Nothing
+class Dirt : public Sprite
 {
-    public:
-        Nothing(float xLocation, float yLocation);
-        ~Nothing();
-        void Draw(float cellWidth, float cellHeight);
-        Coordinates m_coordinates;
+public:
+  // Methods
+  Dirt(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  {
+
+  }
+  ~Dirt();
+  void Draw(float cw, float ch);
 };
 
-class Wall
+class Wall : public Sprite
 {
-    public:
-        Wall(float xLocation, float yLocation);
-        ~Wall();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        Coordinates m_coordinates;
+public:
+  Wall(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  {
+
+  }
+  ~Wall();
+  void Draw(float cw, float ch);
 };
 
-class Boulder
+class Boulder : public Sprite
 {
-    public:
-        Boulder(float xLocation, float yLocation);
-        ~Boulder();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(std::string whichWay, float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        void Destroy(std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        int m_velocity;
+public:
+  Boulder(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  {
+
+  }
+  ~Boulder();
+  void Draw(float w, float h);
 };
 
-class Coin
+class Coin : public Sprite
 {
-    public:
-        Coin(float xLocation, float yLocation);
-        ~Coin();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(std::string whichWay, float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        void Destroy(std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        int m_animationSequence;
-        int m_velocity;
+public:
+  Coin(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(0)
+  {
+
+  }
+  ~Coin();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
 };
 
-class Exit
+class Exit : public Sprite
 {
-    public:
-        Exit(float xLocation, float yLocation);
-        ~Exit();
-        void Draw(GLuint& textureID, float cellWidth, float cellHeight);
-        Coordinates m_coordinates;
-        int m_animationSequence;
-        bool m_triggerAnimation;
+public:
+  Exit(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(1)
+  , m_triggerAnimation(false)
+  {
+
+  }
+  ~Exit();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
+  bool m_triggerAnimation;
 };
 
-class Impassable
+class Impassable : public Sprite
 {
-    public:
-        Impassable(float xLocation, float yLocation);
-        ~Impassable();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        Coordinates m_coordinates;
+public:
+  Impassable(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  {
+
+  }
+  ~Impassable();
+  void Draw(float cw, float ch);
 };
 
-class Player
+class Player : public Sprite
 {
-    public:
-        Player(float xLocation, float yLocation);
-        ~Player();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(std::string whichWay, float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        Coordinates m_lastCoordinates;
-        int m_animationSequence;
-        int m_direction; // 4 for left, 5 for right
-        int m_lastDirection; // 4 or 5
+public:
+  Player(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(0)
+  , m_direction(0)
+  {
+
+  }
+  ~Player();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
+  int m_direction; // 4 for left, 5 for right
 };
 
-class Amoeba
+class Amoeba : public Sprite
 {
-    public:
-        Amoeba(float xLocation, float yLocation);
-        ~Amoeba();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        int m_animationSequence;
+public:
+  Amoeba(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(0)
+  {
+
+  }
+  ~Amoeba();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
 };
 
-class MagicWall
+class MagicWall : public Sprite
 {
-    public:
-        MagicWall(float xLocation, float yLocation);
-        ~MagicWall();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        Coordinates m_coordinates;
-        int m_animationSequence;
+public:
+  MagicWall(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(4)
+  {
+
+  }
+  ~MagicWall();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
 };
 
-class Butterfly
+class Butterfly : public Sprite
 {
-    public:
-        Butterfly(float xLocation, float yLocation);
-        ~Butterfly();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        int m_animationSequence;
+public:
+  Butterfly(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(2)
+  {
+
+  }
+  ~Butterfly();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
 };
 
-class Firefly
+class Firefly : public Sprite
 {
-    public:
-        Firefly(float xLocation, float yLocation);
-        ~Firefly();
-        void Draw(GLuint &textureID, float cellWidth, float cellHeight);
-        void Move(float cellWidth, float cellHeight, std::vector<Nothing> &nothing);
-        Coordinates m_coordinates;
-        int m_animationSequence;
+public:
+  Firefly(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(0)
+  {
+
+  }
+  ~Firefly();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
 };
 
 #endif // SPRITE_H
-

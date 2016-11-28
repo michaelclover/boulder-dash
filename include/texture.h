@@ -23,7 +23,7 @@ class TextureSheet
         bool LoadTextureFromFile(std::string file);
 
         // ID of the texture sheet
-        GLuint m_textureID;
+        GLuint m_texID;
 
     private:
         // Height and width of loaded texture sheet

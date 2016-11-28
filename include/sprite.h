@@ -17,7 +17,7 @@ public:
   // Methods
   Sprite(GLuint *texID, SpriteType &t, float &x, float &y)
   {
-    m_textureID = texID;
+    m_texID = texID;
     m_coordinates.m_x = x;
     m_coordinates.m_y = y;
     m_type = t;
@@ -27,7 +27,7 @@ public:
 
   // Members
   Coordinates m_coordinates;
-  GLuint* m_textureID;
+  GLuint* m_texID;
   SpriteType m_type;
 };
 

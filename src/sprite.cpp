@@ -9,11 +9,11 @@ void Dirt::Draw(float cw, float ch)
     glLoadIdentity();
 
     glTranslatef(m_coordinates.m_x, m_coordinates.m_y, 0);
-    
+
     // White
     glColor3f(1.0f,1.0f,1.0f);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f(1.0f/8*1, 1.0f/12*7);
@@ -42,7 +42,7 @@ void Wall::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f(1.0f/8*3, 1.0f/12*6);
@@ -68,7 +68,7 @@ void Boulder::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f(1.0f/8*0, 1.0f/12*7);
@@ -94,7 +94,7 @@ void Coin::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*10);
@@ -126,7 +126,7 @@ void Exit::Draw(float cw, float ch)
     // White
     glColor3f(1.0f, 1.0f, 1.0f);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     if(m_animationSequence == 3)
         m_animationSequence = 1;
@@ -161,7 +161,7 @@ void Impassable::Draw(float cw, float ch)
     // White
     glColor3f(1.0f,1.0f,1.0f);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f(1.0f/8*1, 1.0f/12*6);
@@ -189,7 +189,7 @@ void Player::Draw(float cw, float ch)
 
     glColor3f(1.0f,1.0f,1.0f);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     if(m_direction == 0)
     {
@@ -238,7 +238,7 @@ void Amoeba::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*8);
@@ -269,7 +269,7 @@ void MagicWall::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*6);
@@ -300,7 +300,7 @@ void Butterfly::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*11);
@@ -331,7 +331,7 @@ void Firefly::Draw(float cw, float ch)
 
     glColor3f(1.0, 1.0, 1.0);
 
-    glBindTexture(GL_TEXTURE_2D, *m_textureID);
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
 
     glBegin(GL_QUADS);
         glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*9);

@@ -6,8 +6,6 @@ void InitializeGL(int width, int height)
 
     glEnable(GL_TEXTURE_2D);
 
-    glViewport(50.0f, 50.0f, (float)width-100.0f, (float)height-100.0f);
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
@@ -15,8 +13,6 @@ void InitializeGL(int width, int height)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-    glPushMatrix();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -30,14 +26,13 @@ void InitializeDevIL()
 
 void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch)
 {
-  std::vector<float*> textCoordinates;
-
-  for(int i = 0; i < s.length(); i++)
+  std::vector<float*> coordinates;
+  for(auto& i : s)
   {
-      textCoordinates.push_back(GetTextCoordinates(s[i]));
+    coordinates.push_back(GetCoordinates(i));
   }
 
-  for(int k = 0; k < s.length(); k++)
+  for(int k = 0; k < coordinates.size(); k++)
   {
       // White
       glColor3f(1.0f,1.0f,1.0f);
@@ -45,13 +40,13 @@ void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch)
       glBindTexture(GL_TEXTURE_2D, texID);
 
       glBegin(GL_QUADS);
-          glTexCoord2f(textCoordinates[k][0], textCoordinates[k][1]);
+          glTexCoord2f(coordinates[k][0], coordinates[k][1]);
           glVertex2f(0, 0);
-          glTexCoord2f(textCoordinates[k][0] + 1.0f/10*1, textCoordinates[k][1]);
+          glTexCoord2f(coordinates[k][0] + 1.0f/10*1, coordinates[k][1]);
           glVertex2f(cw, 0);
-          glTexCoord2f(textCoordinates[k][0] + 1.0f/10*1, textCoordinates[k][1] + 1.0f/4*1);
+          glTexCoord2f(coordinates[k][0] + 1.0f/10*1, coordinates[k][1] + 1.0f/4*1);
           glVertex2f(cw, ch);
-          glTexCoord2f(textCoordinates[k][0], textCoordinates[k][1] + 1.0f/4*1);
+          glTexCoord2f(coordinates[k][0], coordinates[k][1] + 1.0f/4*1);
           glVertex2f(0, ch);
       glEnd();
 
@@ -60,8 +55,8 @@ void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch)
       glTranslatef(cw, 0, 0);
   }
 
-  for(int i = 0; i < textCoordinates.size(); i++)
-      delete textCoordinates[i];
+  for(int i = 0; i < coordinates.size(); i++)
+      delete coordinates[i];
 }
 
 void UtilityRenderText(int num, GLuint &texID, float cw, float ch)
@@ -71,11 +66,11 @@ void UtilityRenderText(int num, GLuint &texID, float cw, float ch)
 
     std::string numberAsString = convertToString.str();
 
-    std::vector<float*> textCoordinates;
+    std::vector<float*> coordinates;
 
     for(int i = 0; i < numberAsString.length(); i++)
     {
-        textCoordinates.push_back(GetTextCoordinates(numberAsString[i]));
+        coordinates.push_back(GetCoordinates(numberAsString[i]));
     }
 
     for(int k = 0; k < numberAsString.length(); k++)
@@ -86,13 +81,13 @@ void UtilityRenderText(int num, GLuint &texID, float cw, float ch)
         glBindTexture(GL_TEXTURE_2D, texID);
 
         glBegin(GL_QUADS);
-            glTexCoord2f(textCoordinates[k][0], textCoordinates[k][1]);
+            glTexCoord2f(coordinates[k][0], coordinates[k][1]);
             glVertex2f(0, 0);
-            glTexCoord2f(textCoordinates[k][0] + 1.0f/10*1, textCoordinates[k][1]);
+            glTexCoord2f(coordinates[k][0] + 1.0f/10*1, coordinates[k][1]);
             glVertex2f(cw, 0);
-            glTexCoord2f(textCoordinates[k][0] + 1.0f/10*1, textCoordinates[k][1] + 1.0f/4*1);
+            glTexCoord2f(coordinates[k][0] + 1.0f/10*1, coordinates[k][1] + 1.0f/4*1);
             glVertex2f(cw, ch);
-            glTexCoord2f(textCoordinates[k][0], textCoordinates[k][1] + 1.0f/4*1);
+            glTexCoord2f(coordinates[k][0], coordinates[k][1] + 1.0f/4*1);
             glVertex2f(0, ch);
         glEnd();
 
@@ -101,55 +96,55 @@ void UtilityRenderText(int num, GLuint &texID, float cw, float ch)
         glTranslatef(cw, 0, 0);
     }
 
-    for(int i = 0; i < textCoordinates.size(); i++)
-        delete textCoordinates[i];
+    for(int i = 0; i < coordinates.size(); i++)
+        delete coordinates[i];
 }
 
-float* GetTextCoordinates(char requestedChar)
+float* GetCoordinates(char requestedChar)
 {
-    float* textCoordinates = new float[2];
+    float* coordinates = new float[2];
 
     switch(requestedChar)
     {
-    case '0':   textCoordinates[0] = 1.0f/10*0; textCoordinates[1] = 1.0f/4*0; break;
-    case '1':   textCoordinates[0] = 1.0f/10*1; textCoordinates[1] = 1.0f/4*0; break;
-    case '2':   textCoordinates[0] = 1.0f/10*2; textCoordinates[1] = 1.0f/4*0; break;
-    case '3':   textCoordinates[0] = 1.0f/10*3; textCoordinates[1] = 1.0f/4*0; break;
-    case '4':   textCoordinates[0] = 1.0f/10*4; textCoordinates[1] = 1.0f/4*0; break;
-    case '5':   textCoordinates[0] = 1.0f/10*5; textCoordinates[1] = 1.0f/4*0; break;
-    case '6':   textCoordinates[0] = 1.0f/10*6; textCoordinates[1] = 1.0f/4*0; break;
-    case '7':   textCoordinates[0] = 1.0f/10*7; textCoordinates[1] = 1.0f/4*0; break;
-    case '8':   textCoordinates[0] = 1.0f/10*8; textCoordinates[1] = 1.0f/4*0; break;
-    case '9':   textCoordinates[0] = 1.0f/10*9; textCoordinates[1] = 1.0f/4*0; break;
-    case 'a':   textCoordinates[0] = 1.0f/10*0; textCoordinates[1] = 1.0f/4*1; break;
-    case 'b':   textCoordinates[0] = 1.0f/10*1; textCoordinates[1] = 1.0f/4*1; break;
-    case 'c':   textCoordinates[0] = 1.0f/10*2; textCoordinates[1] = 1.0f/4*1; break;
-    case 'd':   textCoordinates[0] = 1.0f/10*3; textCoordinates[1] = 1.0f/4*1; break;
-    case 'e':   textCoordinates[0] = 1.0f/10*4; textCoordinates[1] = 1.0f/4*1; break;
-    case 'f':   textCoordinates[0] = 1.0f/10*5; textCoordinates[1] = 1.0f/4*1; break;
-    case 'g':   textCoordinates[0] = 1.0f/10*6; textCoordinates[1] = 1.0f/4*1; break;
-    case 'h':   textCoordinates[0] = 1.0f/10*7; textCoordinates[1] = 1.0f/4*1; break;
-    case 'i':   textCoordinates[0] = 1.0f/10*8; textCoordinates[1] = 1.0f/4*1; break;
-    case 'j':   textCoordinates[0] = 1.0f/10*9; textCoordinates[1] = 1.0f/4*1; break;
-    case 'k':   textCoordinates[0] = 1.0f/10*0; textCoordinates[1] = 1.0f/4*2; break;
-    case 'l':   textCoordinates[0] = 1.0f/10*1; textCoordinates[1] = 1.0f/4*2; break;
-    case 'm':   textCoordinates[0] = 1.0f/10*2; textCoordinates[1] = 1.0f/4*2; break;
-    case 'n':   textCoordinates[0] = 1.0f/10*3; textCoordinates[1] = 1.0f/4*2; break;
-    case 'o':   textCoordinates[0] = 1.0f/10*4; textCoordinates[1] = 1.0f/4*2; break;
-    case 'p':   textCoordinates[0] = 1.0f/10*5; textCoordinates[1] = 1.0f/4*2; break;
-    case 'q':   textCoordinates[0] = 1.0f/10*6; textCoordinates[1] = 1.0f/4*2; break;
-    case 'r':   textCoordinates[0] = 1.0f/10*7; textCoordinates[1] = 1.0f/4*2; break;
-    case 's':   textCoordinates[0] = 1.0f/10*8; textCoordinates[1] = 1.0f/4*2; break;
-    case 't':   textCoordinates[0] = 1.0f/10*9; textCoordinates[1] = 1.0f/4*2; break;
-    case 'u':   textCoordinates[0] = 1.0f/10*0; textCoordinates[1] = 1.0f/4*3; break;
-    case 'v':   textCoordinates[0] = 1.0f/10*1; textCoordinates[1] = 1.0f/4*3; break;
-    case 'w':   textCoordinates[0] = 1.0f/10*2; textCoordinates[1] = 1.0f/4*3; break;
-    case 'x':   textCoordinates[0] = 1.0f/10*3; textCoordinates[1] = 1.0f/4*3; break;
-    case 'y':   textCoordinates[0] = 1.0f/10*4; textCoordinates[1] = 1.0f/4*3; break;
-    case 'z':   textCoordinates[0] = 1.0f/10*5; textCoordinates[1] = 1.0f/4*3; break;
-    case ' ':   textCoordinates[0] = 1.0f/10*6; textCoordinates[1] = 1.0f/4*3; break;
-    default: textCoordinates[0] = 1.0f/10*0; textCoordinates[1] = 1.0f/4*0; break;
+    case '0':   coordinates[0] = 1.0f/10*0; coordinates[1] = 1.0f/4*0; break;
+    case '1':   coordinates[0] = 1.0f/10*1; coordinates[1] = 1.0f/4*0; break;
+    case '2':   coordinates[0] = 1.0f/10*2; coordinates[1] = 1.0f/4*0; break;
+    case '3':   coordinates[0] = 1.0f/10*3; coordinates[1] = 1.0f/4*0; break;
+    case '4':   coordinates[0] = 1.0f/10*4; coordinates[1] = 1.0f/4*0; break;
+    case '5':   coordinates[0] = 1.0f/10*5; coordinates[1] = 1.0f/4*0; break;
+    case '6':   coordinates[0] = 1.0f/10*6; coordinates[1] = 1.0f/4*0; break;
+    case '7':   coordinates[0] = 1.0f/10*7; coordinates[1] = 1.0f/4*0; break;
+    case '8':   coordinates[0] = 1.0f/10*8; coordinates[1] = 1.0f/4*0; break;
+    case '9':   coordinates[0] = 1.0f/10*9; coordinates[1] = 1.0f/4*0; break;
+    case 'a':   coordinates[0] = 1.0f/10*0; coordinates[1] = 1.0f/4*1; break;
+    case 'b':   coordinates[0] = 1.0f/10*1; coordinates[1] = 1.0f/4*1; break;
+    case 'c':   coordinates[0] = 1.0f/10*2; coordinates[1] = 1.0f/4*1; break;
+    case 'd':   coordinates[0] = 1.0f/10*3; coordinates[1] = 1.0f/4*1; break;
+    case 'e':   coordinates[0] = 1.0f/10*4; coordinates[1] = 1.0f/4*1; break;
+    case 'f':   coordinates[0] = 1.0f/10*5; coordinates[1] = 1.0f/4*1; break;
+    case 'g':   coordinates[0] = 1.0f/10*6; coordinates[1] = 1.0f/4*1; break;
+    case 'h':   coordinates[0] = 1.0f/10*7; coordinates[1] = 1.0f/4*1; break;
+    case 'i':   coordinates[0] = 1.0f/10*8; coordinates[1] = 1.0f/4*1; break;
+    case 'j':   coordinates[0] = 1.0f/10*9; coordinates[1] = 1.0f/4*1; break;
+    case 'k':   coordinates[0] = 1.0f/10*0; coordinates[1] = 1.0f/4*2; break;
+    case 'l':   coordinates[0] = 1.0f/10*1; coordinates[1] = 1.0f/4*2; break;
+    case 'm':   coordinates[0] = 1.0f/10*2; coordinates[1] = 1.0f/4*2; break;
+    case 'n':   coordinates[0] = 1.0f/10*3; coordinates[1] = 1.0f/4*2; break;
+    case 'o':   coordinates[0] = 1.0f/10*4; coordinates[1] = 1.0f/4*2; break;
+    case 'p':   coordinates[0] = 1.0f/10*5; coordinates[1] = 1.0f/4*2; break;
+    case 'q':   coordinates[0] = 1.0f/10*6; coordinates[1] = 1.0f/4*2; break;
+    case 'r':   coordinates[0] = 1.0f/10*7; coordinates[1] = 1.0f/4*2; break;
+    case 's':   coordinates[0] = 1.0f/10*8; coordinates[1] = 1.0f/4*2; break;
+    case 't':   coordinates[0] = 1.0f/10*9; coordinates[1] = 1.0f/4*2; break;
+    case 'u':   coordinates[0] = 1.0f/10*0; coordinates[1] = 1.0f/4*3; break;
+    case 'v':   coordinates[0] = 1.0f/10*1; coordinates[1] = 1.0f/4*3; break;
+    case 'w':   coordinates[0] = 1.0f/10*2; coordinates[1] = 1.0f/4*3; break;
+    case 'x':   coordinates[0] = 1.0f/10*3; coordinates[1] = 1.0f/4*3; break;
+    case 'y':   coordinates[0] = 1.0f/10*4; coordinates[1] = 1.0f/4*3; break;
+    case 'z':   coordinates[0] = 1.0f/10*5; coordinates[1] = 1.0f/4*3; break;
+    case ' ':   coordinates[0] = 1.0f/10*6; coordinates[1] = 1.0f/4*3; break;
+    default: coordinates[0] = 1.0f/10*0; coordinates[1] = 1.0f/4*0; break;
     }
 
-    return textCoordinates;
+    return coordinates;
 }

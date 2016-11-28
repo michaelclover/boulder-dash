@@ -10,7 +10,8 @@ const int TICKS_PER_FRAME = 1000 / FPS;
 
 const std::string IMG_FOLDER = "../imgs/";
 const std::string CAVE_FOLDER = "../caves/";
-const std::string PLAYLIST_FOLDER = "../playlist/";
+const std::string PLAYLIST_FOLDER = "../plists/";
+const std::string ROOT_FOLDER = "../";
 
 const float ORTHO_WIDTH = 400.0f;
 const float ORTHO_HEIGHT = 220.0f;

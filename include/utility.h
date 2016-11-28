@@ -29,7 +29,7 @@ void UtilityRenderText(int num, GLuint &texID, float cw, float ch);
 void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch);
 
 // Returns coordinates of requested character
-float* GetTextCoordinates(char requestedChar);
+float* GetCoordinates(char requestedChar);
 
 // Generic structure that holds sprite coordinates
 struct Coordinates
@@ -54,6 +54,14 @@ enum class SpriteType : uint8_t
   Magicwall,
   Butterfly,
   Firefly
+};
+
+enum class Direction : uint8_t
+{
+  Up,
+  Down,
+  Left,
+  Right
 };
 
 #endif // UTILITY_H

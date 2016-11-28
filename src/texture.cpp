@@ -55,10 +55,10 @@ bool TextureSheet::LoadTextureFromFile(std::string file)
 bool TextureSheet::LoadTextureFromPixels(GLuint* pixels)
 {
     // Generate OpenGL texture identifier
-    glGenTextures(1, &m_textureID);
+    glGenTextures(1, &m_texID);
 
     // Bind the texture ID
-    glBindTexture(GL_TEXTURE_2D, m_textureID);
+    glBindTexture(GL_TEXTURE_2D, m_texID);
 
     // Generate the texture
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_imageWidth, m_imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );

@@ -44,7 +44,7 @@ class BoulderDash
         bool HandleInput(SDL_Event &event);
 
         // Load a map file
-        void LoadMap(std::string fileName);
+        void LoadCave(std::string c);
 
         // Close the currently opened map
         void CloseMap();
@@ -55,27 +55,24 @@ class BoulderDash
         // Load the playlist
         void LoadPlaylist();
 
+        // Process movements
+        void ProcessIntent(Sprite* s, Direction d);
+
     private:
         // Pointer to the game window
-        Window* mainWindow = nullptr;
-
-        // Pointer to the player
-        Player* mainPlayer = nullptr;
-
-        // Pointer to the exit location
-        Exit* mainExit = nullptr;
+        Window* m_window = nullptr;
 
         // Pointer to the timer
-        Timer* mainTimer = nullptr;
+        Timer* m_gametimer = nullptr;
 
         // Pointer to cave timer
-        Timer* mainCaveTimer = nullptr;
+        Timer* m_cavetimer = nullptr;
 
         // Pointer to the texture sheet
-        TextureSheet mainTexture;
+        TextureSheet m_sprites;
 
         // Pointer to the text sheet
-        TextureSheet mainTextTexture;
+        TextureSheet m_text;
 
         // All game objects for currently loaded cave
         std::vector<Sprite*> m_objects;

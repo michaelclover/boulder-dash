@@ -24,7 +24,6 @@ BoulderDash::BoulderDash(std::string title, int width, int height)
     }
 
     InitializeGL(m_window->GetWidth(), m_window->GetHeight());
-
     InitializeDevIL();
 
     if(m_sprites.LoadTextureFromFile(IMG_FOLDER + "spritesheet.png") != true)
@@ -51,169 +50,339 @@ BoulderDash::~BoulderDash()
       delete m_objects[i];
 }
 
-void BoulderDash::ProcessIntent(Sprite* s, Direction d)
+bool BoulderDash::IsSolid(Sprite* s)
 {
-  SpriteType st = s->m_type;
-  int sx = s->m_coordinates.m_x;
-  int sy = s->m_coordinates.m_y;
+  return (s->m_type == SpriteType::Wall || s->m_type == SpriteType::Boulder ||
+          s->m_type == SpriteType::Coin || s->m_type == SpriteType::Exit ||
+          s->m_type == SpriteType::Impassable || s->m_type == SpriteType::Amoeba ||
+          s->m_type == SpriteType::Dirt);
+}
 
+void BoulderDash::RemoveGameObject(Sprite* s)
+{
+  for(int i = 0; i < m_objects.size(); ++i)
+  {
+    if(m_objects[i] == s)
+    {
+      delete m_objects[i];
+      m_objects.erase(m_objects.begin() + i);
+    }
+  }
+}
+
+void BoulderDash::ProcessIntent(Boulder* o, Direction d)
+{
+  Sprite* s;
   int x, y;
   switch(d)
   {
     case Direction::Down:
     {
-      x = sx;
-      y = sy + m_ch;
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y + m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y + m_ch;
     }
     break;
+
     case Direction::Up:
     {
-      x = sx;
-      y = sy - m_ch;
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y - m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y - m_ch;
     }
     break;
+
     case Direction::Left:
     {
-      x = sx - m_cw;
-      y = sy;
+      s = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x - m_cw;
+      y = o->m_coordinates.m_y;
     }
     break;
+
     case Direction::Right:
     {
-      x = sx + m_cw;
-      y = sy;
+      s = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x + m_cw;
+      y = o->m_coordinates.m_y;
     }
     break;
-    default:
-      break;
   }
 
-  bool e = false;
-  for(int i = 0; i < m_objects.size(); ++i)
+  if(s == nullptr)
   {
-    // This object is occupying the space our object wishes to enter
-    if(m_objects[i]->m_coordinates.m_x == x && m_objects[i]->m_coordinates.m_y == y)
+    o->m_coordinates.m_x = x;
+    o->m_coordinates.m_y = y;
+  }
+  else
+  {
+    if(d == Direction::Down && o->m_velocity == true)
     {
-      e = true;
-
-      SpriteType t = m_objects[i]->m_type;
-      switch(st)
+      if(IsSolid(s))
       {
-        case SpriteType::Boulder:
+        // Perform slide checks
+        Sprite* left = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
+        Sprite* bottomleft = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y + m_ch);
+        if(left == nullptr)
         {
-          switch(t)
+          if(bottomleft == nullptr || !IsSolid(bottomleft))
           {
-            case SpriteType::Player:
-            {
-              // Destroy the boulder and the player.
-              // Respawn the player at the spawn point if they have lives.
-            }
-            break;
-            case SpriteType::Boulder:
-            {
-              // If there's space to the left and bottom left
-              // or right and bottom right, the boulder should slide off.
-            }
-            break;
-            case SpriteType::Coin:
-            {
-              // If there's space to the left and bottom left
-              // or right and bottom right, the boulder should slide off.
-            }
-            break;
-            default:
-              break;
+            o->m_intent.push_back(Direction::Left);
           }
         }
-        break;
-        case SpriteType::Coin:
+
+        Sprite* right = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y);
+        Sprite* bottomright = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y + m_ch);
+        if(right == nullptr)
         {
-          switch(t)
+          if(bottomright == nullptr || !IsSolid(bottomright))
           {
-            case SpriteType::Coin:
-            {
-              // If there's space to the left and bottom left
-              // or right and bottom right, the coin should slide off.
-            }
-            break;
-            case SpriteType::Boulder:
-            {
-              // If there's space to the left and bottom left
-              // or right and bottom right, the coin should slide off.
-            }
-            break;
-            default:
-              break;
+            o->m_intent.push_back(Direction::Right);
           }
         }
-        break;
-        case SpriteType::Player:
+      }
+      else
+      {
+        // It's landed on something squidgy, let's check what it is in order
+        // to see what needs to be done
+        switch(s->m_type)
         {
-          switch(t)
+          case SpriteType::Player:
           {
-            case SpriteType::Coin:
-            {
-              s->m_coordinates.m_x = x;
-              s->m_coordinates.m_y = y;
-
-              m_coinsCollected += 1;
-
-              delete m_objects[i];
-              m_objects.erase(m_objects.begin() + i);
-            }
-            break;
-            case SpriteType::Dirt:
-            {
-              s->m_coordinates.m_x = x;
-              s->m_coordinates.m_y = y;
-
-              delete m_objects[i];
-              m_objects.erase(m_objects.begin() + i);
-            }
-            break;
-            case SpriteType::Exit:
-            {
-              Exit* ex = reinterpret_cast<Exit*>(m_objects[i]);
-              if(ex->m_triggerAnimation == true)
-              {
-                s->m_coordinates.m_x = x;
-                s->m_coordinates.m_y = y;
-              }
-            }
-            break;
-            default:
-              break;
+            // Destroy player and boulder, trigger explosion animation,
+            // Respawn the player back at the start if he has lives remaining
           }
-        }
-        break;
-        case SpriteType::Amoeba:
-        {
-
-        }
-        break;
-        case SpriteType::Butterfly:
-        {
-
-        }
-        break;
-        case SpriteType::Firefly:
-        {
-
-        }
-        break;
-        default:
           break;
+        }
       }
     }
   }
 
-  // If nothing was present at the intended space
-  // move the object into the empty space
-  if(e != true)
+  // Set the velocity depending on whether the boulder moved this tick
+  if(o->m_coordinates.m_x == x && o->m_coordinates.m_y == y)
+    o->m_velocity = true;
+  else
+    o->m_velocity = false;
+}
+
+void BoulderDash::ProcessIntent(Coin* o, Direction d)
+{
+  Sprite* s;
+  int x, y;
+  switch(d)
   {
-    s->m_coordinates.m_x = x;
-    s->m_coordinates.m_y = y;
+    case Direction::Down:
+    {
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y + m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y + m_ch;
+    }
+    break;
+
+    case Direction::Up:
+    {
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y - m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y - m_ch;
+    }
+    break;
+
+    case Direction::Left:
+    {
+      s = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x - m_cw;
+      y = o->m_coordinates.m_y;
+    }
+    break;
+
+    case Direction::Right:
+    {
+      s = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x + m_cw;
+      y = o->m_coordinates.m_y;
+    }
+    break;
   }
+
+  if(s == nullptr)
+  {
+    o->m_coordinates.m_x = x;
+    o->m_coordinates.m_y = y;
+  }
+  else
+  {
+    if(d == Direction::Down && o->m_velocity == true)
+    {
+      if(IsSolid(s))
+      {
+        // Perform slide checks
+        Sprite* left = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
+        Sprite* bottomleft = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y + m_ch);
+        if(left == nullptr)
+        {
+          if(bottomleft == nullptr || !IsSolid(bottomleft))
+          {
+            o->m_intent.push_back(Direction::Left);
+          }
+        }
+
+        Sprite* right = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y);
+        Sprite* bottomright = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y + m_ch);
+        if(right == nullptr)
+        {
+          if(bottomright == nullptr || !IsSolid(bottomright))
+          {
+            o->m_intent.push_back(Direction::Right);
+          }
+        }
+      }
+      else
+      {
+        // It's landed on something squidgy, let's check what it is in order
+        // to see what needs to be done
+      }
+    }
+  }
+
+  // Set the velocity depending on whether the coin moved this tick
+  if(o->m_coordinates.m_x == x && o->m_coordinates.m_y == y)
+    o->m_velocity = true;
+  else
+    o->m_velocity = false;
+}
+
+void BoulderDash::ProcessIntent(Player* o, Direction d)
+{
+  Sprite* s;
+  int x, y;
+  switch(d)
+  {
+    case Direction::Down:
+    {
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y + m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y + m_ch;
+    }
+    break;
+
+    case Direction::Up:
+    {
+      s = GetTile(o->m_coordinates.m_x, o->m_coordinates.m_y - m_ch);
+
+      x = o->m_coordinates.m_x;
+      y = o->m_coordinates.m_y - m_ch;
+    }
+    break;
+
+    case Direction::Left:
+    {
+      s = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x - m_cw;
+      y = o->m_coordinates.m_y;
+    }
+    break;
+
+    case Direction::Right:
+    {
+      s = GetTile(o->m_coordinates.m_x + m_cw, o->m_coordinates.m_y);
+
+      x = o->m_coordinates.m_x + m_cw;
+      y = o->m_coordinates.m_y;
+    }
+    break;
+  }
+
+  if(s == nullptr)
+  {
+    o->m_coordinates.m_x = x;
+    o->m_coordinates.m_y = y;
+  }
+  else
+  {
+    switch(s->m_type)
+    {
+      case SpriteType::Coin:
+      {
+        o->m_coordinates.m_x = x;
+        o->m_coordinates.m_y = y;
+
+        m_coinsCollected++;
+        RemoveGameObject(s);
+      }
+      break;
+
+      case SpriteType::Dirt:
+      {
+        o->m_coordinates.m_x = x;
+        o->m_coordinates.m_y = y;
+
+        RemoveGameObject(s);
+      }
+      break;
+
+      case SpriteType::Exit:
+      {
+        Exit* e = reinterpret_cast<Exit*>(s);
+        if(e->m_triggerAnimation == true)
+        {
+          o->m_coordinates.m_x = x;
+          o->m_coordinates.m_y = y;
+        }
+      }
+      break;
+
+      case SpriteType::Boulder:
+      {
+        switch(d)
+        {
+          case Direction::Left:
+          {
+            if(GetTile(s->m_coordinates.m_x - m_cw, s->m_coordinates.m_y) == nullptr)
+            {
+              s->m_coordinates.m_x -= m_cw;
+              o->m_coordinates.m_x -= m_cw;
+            }
+          }
+          break;
+
+          case Direction::Right:
+          {
+            if(GetTile(s->m_coordinates.m_x + m_cw, s->m_coordinates.m_y) == nullptr)
+            {
+              s->m_coordinates.m_x += m_cw;
+              o->m_coordinates.m_x += m_cw;
+            }
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+
+void BoulderDash::ProcessIntent(Amoeba* o, Direction d)
+{
+
+}
+
+void BoulderDash::ProcessIntent(Butterfly* o, Direction d)
+{
+
+}
+
+void BoulderDash::ProcessIntent(Firefly* o, Direction d)
+{
+
 }
 
 // Update the model, process collisions, update the camera view
@@ -262,23 +431,37 @@ void BoulderDash::Update()
         // Process AI here
         for(int i = 0; i < m_objects.size(); ++i)
         {
-          int x = m_objects[i]->m_coordinates.m_x;
-          int y = m_objects[i]->m_coordinates.m_y;
-
           switch(m_objects[i]->m_type)
           {
-            // Should set a flag for the boulder if it dropped last tick
-            // so we know whether to send it to the left/right or not
             case SpriteType::Boulder:
             {
-              ProcessIntent(m_objects[i], Direction::Down);
+              Boulder* o = reinterpret_cast<Boulder*>(m_objects[i]);
+              if(!o->m_intent.empty())
+              {
+                Direction d = o->m_intent[0];
+                ProcessIntent(o, d);
+                o->m_intent.clear();
+              }
+              else
+              {
+                ProcessIntent(o, Direction::Down);
+              }
             }
             break;
-            // Should set a flag for the coin if it dropped last tick
-            // so we know whether to send it to the left/right or not
+
             case SpriteType::Coin:
             {
-              ProcessIntent(m_objects[i], Direction::Down);
+              Coin* o = reinterpret_cast<Coin*>(m_objects[i]);
+              if(!o->m_intent.empty())
+              {
+                Direction d = o->m_intent[0];
+                ProcessIntent(o, d);
+                o->m_intent.clear();
+              }
+              else
+              {
+                ProcessIntent(o, Direction::Down);
+              }
             }
             break;
             default:
@@ -288,7 +471,7 @@ void BoulderDash::Update()
     }
     else
     {
-      // Stop giving the player a seizure
+      // Stop the exit animation; the player is at the exit
       if(m_exit->m_triggerAnimation == true)
         m_exit->m_triggerAnimation = false;
 
@@ -309,6 +492,18 @@ void BoulderDash::Update()
       {
         // Perhaps create and render a loading screen and SDL_Delay for
         // a few seconds to give the player time to ready himself.
+
+        // Dirty play-test code
+        CloseMap();
+        m_coinsCollected = 0;
+        m_totalScore = 0;
+        m_requiredCoins = 12;
+        m_timeInCave = 150;
+        m_isMapOpen = true;
+        m_isPlayerExit = false;
+        LoadCave(CAVE_FOLDER + m_caves[0]);
+        m_cavetimer->Stop();
+        m_cavetimer->Start();
       }
     }
 
@@ -391,9 +586,9 @@ bool BoulderDash::HandleInput(SDL_Event &event)
         {
             switch(event.key.keysym.sym)
             {
-                    case SDLK_w: m_keyboard[SDLK_w] = true; break;
+                    case SDLK_w: m_keyboard[SDLK_w] = true; m_player->m_direction = 4; break;
                     case SDLK_a: m_keyboard[SDLK_a] = true; m_player->m_direction = 4; break;
-                    case SDLK_s: m_keyboard[SDLK_s] = true; break;
+                    case SDLK_s: m_keyboard[SDLK_s] = true; m_player->m_direction = 5; break;
                     case SDLK_d: m_keyboard[SDLK_d] = true; m_player->m_direction = 5; break;
             }
         }
@@ -518,6 +713,8 @@ void BoulderDash::CloseMap()
     // Erase all game objects
     for(int i = 0; i < m_objects.size(); ++i)
       delete m_objects[i];
+
+    m_objects.clear();
 }
 
 void BoulderDash::RenderMainMenu()
@@ -553,6 +750,16 @@ void BoulderDash::RenderMainMenu()
       glVertex2f(0, m_ch * 6);
   glEnd();
   glBindTexture(GL_TEXTURE_2D, NULL);
+}
+
+Sprite* BoulderDash::GetTile(int x, int y)
+{
+  std::vector<Sprite*>::iterator it = std::find_if(m_objects.begin(), m_objects.end(),
+  [x, y] (const Sprite* s) -> bool { return s->m_coordinates.m_x == x && s->m_coordinates.m_y == y;});
+  if(it == m_objects.end())
+    return nullptr;
+  else
+    return *it;
 }
 
 void BoulderDash::MainLoop()

@@ -21,6 +21,7 @@ public:
     m_coordinates.m_x = x;
     m_coordinates.m_y = y;
     m_type = t;
+    m_velocity = false;
   }
   virtual ~Sprite() {}
   virtual void Draw(float cw, float ch) = 0;
@@ -29,6 +30,8 @@ public:
   Coordinates m_coordinates;
   GLuint* m_texID;
   SpriteType m_type;
+  std::vector<Direction> m_intent;
+  bool m_velocity;
 };
 
 class Dirt : public Sprite

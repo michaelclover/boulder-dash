@@ -8,6 +8,9 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <algorithm>
+#include <ctime>
+#include <cstdlib>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
@@ -55,8 +58,22 @@ class BoulderDash
         // Load the playlist
         void LoadPlaylist();
 
-        // Process movements
-        void ProcessIntent(Sprite* s, Direction d);
+        // Process intent for moveable game objects
+        void ProcessIntent(Boulder* o, Direction d);
+        void ProcessIntent(Coin* o, Direction d);
+        void ProcessIntent(Player* o, Direction d);
+        void ProcessIntent(Amoeba* o, Direction d);
+        void ProcessIntent(Butterfly* o, Direction d);
+        void ProcessIntent(Firefly* o, Direction d);
+
+        // Check whether a tile is occupied
+        Sprite* GetTile(int x, int y);
+
+        // Check whether a sprite is a solid object
+        bool IsSolid(Sprite* s);
+
+        // Remove a game object
+        void RemoveGameObject(Sprite* s);
 
     private:
         // Pointer to the game window

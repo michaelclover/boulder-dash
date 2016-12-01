@@ -47,10 +47,7 @@ class BoulderDash
         bool HandleInput(SDL_Event &event);
 
         // Load a map file
-        void LoadCave(std::string c);
-
-        // Close the currently opened map
-        void CloseMap();
+        void LoadNextCave();
 
         // Game main loop
         void MainLoop();
@@ -134,7 +131,16 @@ class BoulderDash
         std::map<int, bool> m_keyboard;
 
         // Caves in current playlist
-        std::vector<std::string> m_caves;
+        std::vector<Cave> m_caves;
+
+        // Coordinates where the player spawned
+        Coordinates m_spawncoords;
+
+        // Index of the current cave into m_caves
+        int m_currentcave;
+
+        //  Number of lives the player has
+        int m_lives;
 };
 
 #endif // MAIN_H

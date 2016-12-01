@@ -64,4 +64,11 @@ enum class Direction : uint8_t
   Right
 };
 
+struct Cave
+{
+  std::string name;
+  int coins;
+  int time;
+};
+
 #endif // UTILITY_H

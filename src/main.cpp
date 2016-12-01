@@ -8,6 +8,8 @@ BoulderDash::BoulderDash(std::string title, int width, int height)
     m_timeInCave = 150;
     m_isMapOpen = true;
     m_isPlayerExit = false;
+    m_currentcave = 0;
+    m_lives = 0;
 
     m_cw = ORTHO_WIDTH / 40;
     m_ch = ORTHO_HEIGHT / 22;
@@ -122,7 +124,7 @@ void BoulderDash::ProcessIntent(Boulder* o, Direction d)
   {
     if(d == Direction::Down && o->m_velocity == true)
     {
-      if(IsSolid(s))
+      if(s->m_type == SpriteType::Boulder || s->m_type == SpriteType::Coin)
       {
         // Perform slide checks
         Sprite* left = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
@@ -221,7 +223,7 @@ void BoulderDash::ProcessIntent(Coin* o, Direction d)
   {
     if(d == Direction::Down && o->m_velocity == true)
     {
-      if(IsSolid(s))
+      if(s->m_type == SpriteType::Boulder || s->m_type == SpriteType::Coin)
       {
         // Perform slide checks
         Sprite* left = GetTile(o->m_coordinates.m_x - m_cw, o->m_coordinates.m_y);
@@ -423,10 +425,16 @@ void BoulderDash::Update()
         if(m_keyboard[SDLK_d] == true)
           ProcessIntent(m_player, Direction::Right);
 
-        m_timeInCave = m_cavetimer->GetTicks() / 1000 - 150;
-        // if time in cave == 0, kill character, respawn him back where he
-        // spawned and reset the cave time to the original allocated time for
-        // this cave
+        if(m_timeInCave != 0)
+        {
+          m_timeInCave = m_cavetimer->GetTicks() / 1000 - m_caves[m_currentcave - 1].time;
+        }
+        else if(m_timeInCave == 0)
+        {
+          // if time in cave == 0, kill character, respawn him back where he
+          // spawned and reset the cave time to the original allocated time for
+          // this cave
+        }
 
         // Process AI here
         for(int i = 0; i < m_objects.size(); ++i)
@@ -492,18 +500,7 @@ void BoulderDash::Update()
       {
         // Perhaps create and render a loading screen and SDL_Delay for
         // a few seconds to give the player time to ready himself.
-
-        // Dirty play-test code
-        CloseMap();
-        m_coinsCollected = 0;
-        m_totalScore = 0;
-        m_requiredCoins = 12;
-        m_timeInCave = 150;
-        m_isMapOpen = true;
-        m_isPlayerExit = false;
-        LoadCave(CAVE_FOLDER + m_caves[0]);
-        m_cavetimer->Stop();
-        m_cavetimer->Start();
+        LoadNextCave();
       }
     }
 
@@ -532,6 +529,29 @@ void BoulderDash::Render()
 
 void BoulderDash::RenderText()
 {
+    glViewport(0.0f, 0.0f, (float)m_window->GetWidth(), (float)m_window->GetHeight());
+    glLoadIdentity();
+
+    glColor3f(1.0f,1.0f,1.0f);
+    glBindTexture(GL_TEXTURE_2D, m_sprites.m_texID);
+
+    for(int i = 0; i < m_lives; i++)
+    {
+      glBegin(GL_QUADS);
+          glTexCoord2f(1.0f/8*0, 1.0f/12*0);
+          glVertex2f(0, 0);
+          glTexCoord2f(1.0f/8*1, 1.0f/12*0);
+          glVertex2f(m_cw, 0);
+          glTexCoord2f(1.0f/8*1, 1.0f/12*1);
+          glVertex2f(m_cw, m_ch);
+          glTexCoord2f(1.0f/8*0, 1.0f/12*1);
+          glVertex2f(0, m_ch);
+      glEnd();
+      glTranslatef(m_cw, 0, 0);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, NULL);
+
     glViewport(50.0f, 10.0f, (float)m_window->GetWidth()-100.0f, (float)m_window->GetHeight()-20.0f);
     glLoadIdentity();
 
@@ -560,11 +580,12 @@ bool BoulderDash::HandleInput(SDL_Event &event)
           switch(event.key.keysym.sym)
           {
             case SDLK_RETURN:
-              m_mainMenu = false;
+            {
               LoadPlaylist();
-              LoadCave(CAVE_FOLDER + m_caves.front());
-              m_cavetimer->Start();
-              break;
+              LoadNextCave();
+              m_mainMenu = false;
+            }
+            break;
           }
         }
         if(event.type == SDL_QUIT)
@@ -614,10 +635,36 @@ bool BoulderDash::HandleInput(SDL_Event &event)
     return true;
 }
 
-// Takes the name of the map file as input and creates game objects specified by the file
-void BoulderDash::LoadCave(std::string c)
+void BoulderDash::LoadNextCave()
 {
-  std::ifstream cave(c);
+  // Clear the previous cave, reset the cave timer
+  for(int i = 0; i < m_objects.size(); ++i)
+  {
+    delete m_objects[i];
+  }
+  m_objects.clear();
+
+  m_coinsCollected = 0;
+  m_isMapOpen = true;
+  m_isPlayerExit = false;
+
+  std::ifstream cave;
+  if(m_currentcave + 1 <= m_caves.size())
+  {
+    cave.open(CAVE_FOLDER + m_caves[m_currentcave].name);
+    m_requiredCoins = m_caves[m_currentcave].coins;
+    m_timeInCave = m_caves[m_currentcave].time;
+    m_currentcave++;
+  }
+  else
+  {
+    // No more caves to load; perhaps render an end of game screen and then
+    // move back to the title screen
+    m_mainMenu = true;
+    m_totalScore = 0;
+    m_currentcave = 0;
+    return;
+  }
 
   if(!cave.good())
     std::cerr << "Error opening map, ensure file exists" << std::endl;
@@ -705,16 +752,10 @@ void BoulderDash::LoadCave(std::string c)
     }
   }
 
+  m_cavetimer->Stop();
+  m_cavetimer->Start();
+
   cave.close();
-}
-
-void BoulderDash::CloseMap()
-{
-    // Erase all game objects
-    for(int i = 0; i < m_objects.size(); ++i)
-      delete m_objects[i];
-
-    m_objects.clear();
 }
 
 void BoulderDash::RenderMainMenu()
@@ -805,6 +846,7 @@ void BoulderDash::LoadPlaylist()
   m_caves.clear();
 
   std::string name;
+  std::string lives;
   std::ifstream cplaylist(ROOT_FOLDER + "playlist.txt");
   if(!cplaylist.good())
   {
@@ -814,6 +856,8 @@ void BoulderDash::LoadPlaylist()
   else
   {
     std::getline(cplaylist, name);
+    std::getline(cplaylist, lives);
+    m_lives = std::stoi(lives);
   }
 
   std::ifstream playlist(PLAYLIST_FOLDER + name);
@@ -824,8 +868,59 @@ void BoulderDash::LoadPlaylist()
   }
   else
   {
+    std::string cave = "cave:";
+    std::string coins = "coins:";
+    std::string time = "time:";
+
+    std::string attrib;
+    // Each line contains the cave name, the coins required to clear,
+    // and the time allowed in the cave
     for(std::string line; std::getline(playlist, line);)
-      m_caves.push_back(line);
+    {
+      Cave c;
+
+      std::size_t head;
+      std::size_t tail;
+
+      head = line.find(cave);
+      if(head != std::string::npos)
+      {
+        tail = line.find("]", head + 1);
+        if(tail != std::string::npos)
+        {
+          attrib = line.substr(head + cave.length(), tail - (head + cave.length()));
+          c.name = attrib;
+        }
+      }
+
+      head = line.find(time);
+      if(head != std::string::npos)
+      {
+        tail = line.find("]", head + 1);
+        if(tail != std::string::npos)
+        {
+          attrib = line.substr(head + time.length(), tail - (head + time.length()));
+          c.time = std::stoi(attrib);
+        }
+      }
+
+      head = line.find(coins);
+      if(head != std::string::npos)
+      {
+        tail = line.find("]", head + 1);
+        if(tail != std::string::npos)
+        {
+          attrib = line.substr(head + coins.length(), tail - (head + coins.length()));
+          c.coins = std::stoi(attrib);
+        }
+      }
+
+      std::cout << c.name << std::endl;
+      std::cout << c.coins << std::endl;
+      std::cout << c.time << std::endl;
+
+      m_caves.push_back(c);
+    }
   }
 }
 

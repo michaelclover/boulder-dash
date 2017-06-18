@@ -22,6 +22,9 @@
 #include "timer.h"
 #include "defines.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/istreamwrapper.h"
+
 class BoulderDash
 {
     public:

@@ -845,82 +845,29 @@ void BoulderDash::LoadPlaylist()
 {
   m_caves.clear();
 
-  std::string name;
-  std::string lives;
-  std::ifstream cplaylist(ROOT_FOLDER + "playlist.txt");
-  if(!cplaylist.good())
+  std::ifstream ifs(ROOT_FOLDER + "play.json");
+  rapidjson::IStreamWrapper isw(ifs);
+
+  rapidjson::Document d;
+  d.ParseStream(isw);
+
+  rapidjson::Value& lives = d["lives"];
+  m_lives = lives.GetInt();
+
+  rapidjson::Value& caves = d["caves"];
+  for(auto itr = caves.Begin(); itr != caves.End(); ++itr)
   {
-    std::cerr << "Error determining which playlist to select. Ensure \
-    you've chosen a playlist in 'playlist.txt'" << std::endl;
-  }
-  else
-  {
-    std::getline(cplaylist, name);
-    std::getline(cplaylist, lives);
-    m_lives = std::stoi(lives);
-  }
+    Cave c;
 
-  std::ifstream playlist(PLAYLIST_FOLDER + name);
-  if(!playlist.good())
-  {
-    std::cerr << "Error opening playlist: " << name << ". " << "Ensure \
-    that file exists in: " << PLAYLIST_FOLDER << "." << std::endl;
-  }
-  else
-  {
-    std::string cave = "cave:";
-    std::string coins = "coins:";
-    std::string time = "time:";
+    const rapidjson::Value& cave_name = (*itr)["cave_name"];
+    const rapidjson::Value& alloc_time = (*itr)["allocated_time"];
+    const rapidjson::Value& diamonds_req = (*itr)["diamonds_req"];
 
-    std::string attrib;
-    // Each line contains the cave name, the coins required to clear,
-    // and the time allowed in the cave
-    for(std::string line; std::getline(playlist, line);)
-    {
-      Cave c;
+    c.name = cave_name.GetString();
+    c.time = alloc_time.GetInt();
+    c.coins = diamonds_req.GetInt();
 
-      std::size_t head;
-      std::size_t tail;
-
-      head = line.find(cave);
-      if(head != std::string::npos)
-      {
-        tail = line.find("]", head + 1);
-        if(tail != std::string::npos)
-        {
-          attrib = line.substr(head + cave.length(), tail - (head + cave.length()));
-          c.name = attrib;
-        }
-      }
-
-      head = line.find(time);
-      if(head != std::string::npos)
-      {
-        tail = line.find("]", head + 1);
-        if(tail != std::string::npos)
-        {
-          attrib = line.substr(head + time.length(), tail - (head + time.length()));
-          c.time = std::stoi(attrib);
-        }
-      }
-
-      head = line.find(coins);
-      if(head != std::string::npos)
-      {
-        tail = line.find("]", head + 1);
-        if(tail != std::string::npos)
-        {
-          attrib = line.substr(head + coins.length(), tail - (head + coins.length()));
-          c.coins = std::stoi(attrib);
-        }
-      }
-
-      std::cout << c.name << std::endl;
-      std::cout << c.coins << std::endl;
-      std::cout << c.time << std::endl;
-
-      m_caves.push_back(c);
-    }
+    m_caves.push_back(c);
   }
 }
 

@@ -1,2 +1,0 @@
-[cave:level1.txt] [time:150] [coins:12]
-[cave:level1.txt] [time:200] [coins:14]

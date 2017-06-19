@@ -25,8 +25,6 @@ void Dirt::Draw(float cw, float ch)
         glTexCoord2f(1.0f/8*1, 1.0f/12*8);
         glVertex2f(0, ch);
     glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, NULL);
 }
 
 Wall::~Wall()
@@ -144,8 +142,6 @@ void Exit::Draw(float cw, float ch)
 
     if(m_triggerAnimation == true)
         m_animationSequence++;
-
-    glBindTexture(GL_TEXTURE_2D, NULL);
 }
 
 Impassable::~Impassable()
@@ -173,8 +169,6 @@ void Impassable::Draw(float cw, float ch)
         glTexCoord2f(1.0f/8*1, 1.0f/12*7);
         glVertex2f(0, ch);
     glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, NULL);
 }
 
 Player::~Player()
@@ -222,8 +216,6 @@ void Player::Draw(float cw, float ch)
 
     if(m_animationSequence == 8)
         m_animationSequence = 0;
-
-    glBindTexture(GL_TEXTURE_2D, NULL);
 }
 
 Amoeba::~Amoeba()
@@ -255,37 +247,6 @@ void Amoeba::Draw(float cw, float ch)
 
     if(m_animationSequence == 8)
         m_animationSequence = 0;
-}
-
-MagicWall::~MagicWall()
-{
-}
-
-void MagicWall::Draw(float cw, float ch)
-{
-    glLoadIdentity();
-
-    glTranslatef(m_coordinates.m_x, m_coordinates.m_y, 0);
-
-    glColor3f(1.0, 1.0, 1.0);
-
-    glBindTexture(GL_TEXTURE_2D, *m_texID);
-
-    glBegin(GL_QUADS);
-        glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*6);
-        glVertex2f(0, 0);
-        glTexCoord2f((1.0f/8*(m_animationSequence+1)), 1.0f/12*6);
-        glVertex2f(cw, 0);
-        glTexCoord2f((1.0f/8*(m_animationSequence+1)), 1.0f/12*7);
-        glVertex2f(cw, ch);
-        glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*7);
-        glVertex2f(0, ch);
-    glEnd();
-
-    m_animationSequence++;
-
-    if(m_animationSequence == 8)
-        m_animationSequence = 4;
 }
 
 Butterfly::~Butterfly()

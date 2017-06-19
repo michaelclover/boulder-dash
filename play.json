@@ -4,12 +4,16 @@
     {
       "cave_name": "1.txt",
       "allocated_time": 150,
-      "diamonds_req": 12
+      "diamonds_req": 12,
+      "wall_interval": 0,
+      "amoeba_growth": 10
     },
     {
       "cave_name": "1.txt",
       "allocated_time": 200,
-      "diamonds_req": 14
+      "diamonds_req": 14,
+      "wall_interval": 0,
+      "amoeba_growth": 10
     }
   ]
 }

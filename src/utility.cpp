@@ -50,7 +50,7 @@ void UtilityRenderText(std::string s, GLuint &texID, float cw, float ch)
           glVertex2f(0, ch);
       glEnd();
 
-      glBindTexture(GL_TEXTURE_2D, NULL);
+      //glBindTexture(GL_TEXTURE_2D, NULL);
 
       glTranslatef(cw, 0, 0);
   }
@@ -91,7 +91,7 @@ void UtilityRenderText(int num, GLuint &texID, float cw, float ch)
             glVertex2f(0, ch);
         glEnd();
 
-        glBindTexture(GL_TEXTURE_2D, NULL);
+        //glBindTexture(GL_TEXTURE_2D, NULL);
 
         glTranslatef(cw, 0, 0);
     }

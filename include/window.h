@@ -11,7 +11,7 @@ class Window
 {
     public:
         // Constructor: assigns title of the window, width of the window, and height of the window
-        Window(std::string t, int w, int h);
+        Window(const std::string t, const int w, const int h);
 
         // Destructor: destroys the window handle and frees up the OpenGL context
         ~Window();

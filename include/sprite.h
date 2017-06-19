@@ -32,6 +32,11 @@ public:
   SpriteType m_type;
   std::vector<Direction> m_intent;
   bool m_velocity;
+
+  // these attributes change depending on specifics
+  bool m_rounded;
+  bool m_explodable;
+  bool m_consumable;
 };
 
 class Dirt : public Sprite
@@ -41,7 +46,9 @@ public:
   Dirt(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   {
-
+    m_rounded = false;
+    m_explodable = false;
+    m_consumable = true;
   }
   ~Dirt();
   void Draw(float cw, float ch);
@@ -53,7 +60,9 @@ public:
   Wall(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   {
-
+    m_rounded = true;
+    m_explodable = false;
+    m_consumable = true;
   }
   ~Wall();
   void Draw(float cw, float ch);
@@ -65,7 +74,9 @@ public:
   Boulder(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   {
-
+    m_rounded = true;
+    m_explodable = false;
+    m_consumable = true;
   }
   ~Boulder();
   void Draw(float w, float h);
@@ -78,7 +89,9 @@ public:
   : Sprite(texID, t, x, y)
   , m_animationSequence(0)
   {
-
+    m_rounded = true;
+    m_explodable = false;
+    m_consumable = true;
   }
   ~Coin();
   void Draw(float cw, float ch);
@@ -93,7 +106,9 @@ public:
   , m_animationSequence(1)
   , m_triggerAnimation(false)
   {
-
+    m_rounded = false;
+    m_explodable = false;
+    m_consumable = false;
   }
   ~Exit();
   void Draw(float cw, float ch);
@@ -107,7 +122,9 @@ public:
   Impassable(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   {
-
+    m_rounded = false;
+    m_explodable = false;
+    m_consumable = false;
   }
   ~Impassable();
   void Draw(float cw, float ch);
@@ -121,7 +138,9 @@ public:
   , m_animationSequence(0)
   , m_direction(0)
   {
-
+    m_rounded = false;
+    m_explodable = true;
+    m_consumable = true;
   }
   ~Player();
   void Draw(float cw, float ch);
@@ -136,23 +155,11 @@ public:
   : Sprite(texID, t, x, y)
   , m_animationSequence(0)
   {
-
+    m_rounded = false;
+    m_explodable = false;
+    m_consumable = true;
   }
   ~Amoeba();
-  void Draw(float cw, float ch);
-  int m_animationSequence;
-};
-
-class MagicWall : public Sprite
-{
-public:
-  MagicWall(GLuint *texID, SpriteType t, float x, float y)
-  : Sprite(texID, t, x, y)
-  , m_animationSequence(4)
-  {
-
-  }
-  ~MagicWall();
   void Draw(float cw, float ch);
   int m_animationSequence;
 };
@@ -164,7 +171,9 @@ public:
   : Sprite(texID, t, x, y)
   , m_animationSequence(2)
   {
-
+    m_rounded = false;
+    m_explodable = true;
+    m_consumable = true;
   }
   ~Butterfly();
   void Draw(float cw, float ch);
@@ -178,7 +187,9 @@ public:
   : Sprite(texID, t, x, y)
   , m_animationSequence(0)
   {
-
+    m_rounded = false;
+    m_explodable = true;
+    m_consumable = true;
   }
   ~Firefly();
   void Draw(float cw, float ch);

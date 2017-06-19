@@ -70,7 +70,7 @@ bool TextureSheet::LoadTextureFromPixels(GLuint* pixels)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // Unbind the texture from OpenGL's memory
-    glBindTexture(GL_TEXTURE_2D, NULL);
+    //glBindTexture(GL_TEXTURE_2D, NULL);
 
     // If there is an OpenGL error, report it
     GLenum error = glGetError();

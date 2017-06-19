@@ -1,6 +1,6 @@
 #include "window.h"
 
-Window::Window(std::string t, int w, int h)
+Window::Window(const std::string t, const int w, const int h)
 {
     m_title = t;
     m_w = w;

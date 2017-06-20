@@ -164,12 +164,27 @@ public:
   int m_animationSequence;
 };
 
+class MagicWall : public Sprite
+{
+public:
+  MagicWall(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(4)
+  {
+
+  }
+  ~MagicWall();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
+};
+
 class Butterfly : public Sprite
 {
 public:
   Butterfly(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   , m_animationSequence(2)
+  , m_direction(Direction::Down)
   {
     m_rounded = false;
     m_explodable = true;
@@ -178,6 +193,7 @@ public:
   ~Butterfly();
   void Draw(float cw, float ch);
   int m_animationSequence;
+  Direction m_direction;
 };
 
 class Firefly : public Sprite
@@ -186,6 +202,7 @@ public:
   Firefly(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   , m_animationSequence(0)
+  , m_direction(Direction::Left)
   {
     m_rounded = false;
     m_explodable = true;
@@ -194,6 +211,7 @@ public:
   ~Firefly();
   void Draw(float cw, float ch);
   int m_animationSequence;
+  Direction m_direction;
 };
 
 #endif // SPRITE_H

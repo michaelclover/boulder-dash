@@ -21,7 +21,7 @@ bool Window::Initialise()
         return 1; // Indicate failure
     }
 
-    m_wnd = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_w, m_w, SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED);
+    m_wnd = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_w, m_w, SDL_WINDOW_OPENGL | SDL_WINDOW_MAXIMIZED | SDL_WINDOW_RESIZABLE);
     if(m_wnd == nullptr)
     {
         std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;

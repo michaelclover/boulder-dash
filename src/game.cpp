@@ -367,18 +367,167 @@ void Game::Update()
           {
 
           }
+          break;
+
           case SpriteType::Butterfly:
           {
+            // check if we're next to amoeba or rockford for exploding
 
+            Butterfly* bf = (Butterfly*)i;
+            Direction d = bf->m_direction;
+            if(d == Direction::Left) // butterfly is facing left
+            {
+              Sprite* above = GetAbove(bf); // get sprite above
+              if(above == nullptr)
+              {
+                bf->m_direction = Direction::Up;
+                bf->m_coordinates.m_y -= ch;
+              }
+              else if(GetLeft(bf) == nullptr)
+              {
+                bf->m_coordinates.m_x -= cw;
+              }
+              else
+              {
+                bf->m_direction = Direction::Down;
+              }
+            }
+            else if(d == Direction::Right)
+            {
+              Sprite* below = GetBelow(bf);
+              if(below == nullptr)
+              {
+                bf->m_direction = Direction::Down;
+                bf->m_coordinates.m_y += ch;
+              }
+              else if(GetRight(bf) == nullptr)
+              {
+                bf->m_coordinates.m_x += cw;
+              }
+              else
+              {
+                bf->m_direction = Direction::Up;
+              }
+            }
+            else if(d == Direction::Up)
+            {
+              Sprite* right = GetRight(bf);
+              if(right == nullptr)
+              {
+                bf->m_direction = Direction::Right;
+                bf->m_coordinates.m_x += cw;
+              }
+              else if(GetAbove(bf) == nullptr)
+              {
+                bf->m_coordinates.m_y -= ch;
+              }
+              else
+              {
+                bf->m_direction = Direction::Left;
+              }
+            }
+            else if(d == Direction::Down)
+            {
+              Sprite* left = GetLeft(bf);
+              if(left == nullptr)
+              {
+                bf->m_direction = Direction::Left;
+                bf->m_coordinates.m_x -= cw;
+              }
+              else if(GetBelow(bf) == nullptr)
+              {
+                bf->m_coordinates.m_y += ch;
+              }
+              else
+              {
+                bf->m_direction = Direction::Right;
+              }
+            }
           }
+          break;
+
           case SpriteType::Firefly:
           {
             // check if we're next to amoeba or rockford for exploding
+
+            Firefly* ff = (Firefly*)i;
+            Direction d = ff->m_direction;
+            if(d == Direction::Left) // firefly is facing left
+            {
+              Sprite* below = GetBelow(ff); // get sprite below
+              if(below == nullptr) // nothing's below
+              {
+                ff->m_direction = Direction::Down; // firefly is now facing down
+                ff->m_coordinates.m_y += ch; // move down
+              }
+              else if(GetLeft(ff) == nullptr) // nothing's left
+              {
+                ff->m_coordinates.m_x -= cw;
+              }
+              else // turn right
+              {
+                ff->m_direction = Direction::Up;
+              }
+            }
+            else if(d == Direction::Right) // firefly is facing right
+            {
+              Sprite* above = GetAbove(ff); // get sprite above
+              if(above == nullptr)
+              {
+                ff->m_direction = Direction::Up; // firefly is now facing up
+                ff->m_coordinates.m_y -= ch; // move up
+              }
+              else if(GetRight(ff) == nullptr) // nothing's right
+              {
+                ff->m_coordinates.m_x += cw;
+              }
+              else // turn right
+              {
+                ff->m_direction = Direction::Down; // firefly is now facing down
+              }
+            }
+            else if(d == Direction::Up) // firefly is facing up
+            {
+              Sprite* left = GetLeft(ff); // get sprite to the left
+              if(left == nullptr)
+              {
+                ff->m_direction = Direction::Left; // firefly facing left
+                ff->m_coordinates.m_x -= cw; // move left
+              }
+              else if(GetAbove(ff) == nullptr) // nothing's above
+              {
+                ff->m_coordinates.m_y -= ch; // move up
+              }
+              else // turn right
+              {
+                ff->m_direction = Direction::Right; // firefly is now facing right
+              }
+            }
+            else if(d == Direction::Down) // firefly is facing down
+            {
+              Sprite* right = GetRight(ff); // get sprite to the right
+              if(right == nullptr) // nothing's to the right
+              {
+                ff->m_direction = Direction::Right; // firefly facing right;
+                ff->m_coordinates.m_x += cw; // move right
+              }
+              else if(GetBelow(ff) == nullptr) // nothing's below
+              {
+                ff->m_coordinates.m_y += ch; // move down
+              }
+              else // turn right
+              {
+                ff->m_direction = Direction::Left; // firefly is now facing left
+              }
+            }
           }
+          break;
+
           case SpriteType::Wall: // in case magic walls are enabled for this cave
           {
 
           }
+          break;
         }
       }
   }
@@ -730,6 +879,9 @@ void Game::LoseLife()
   cave_time = caves[caves_index - 1].time; // give us some more time
   cave_timer->Stop(); // reset the SDL cave timer
   cave_timer->Start(); // start the SDL cave timer
+
+  caves_index -= 1; // move the index back
+  LoadNextCave(); // reload the cave
 }
 
 Sprite* Game::GetAbove(Sprite* s)

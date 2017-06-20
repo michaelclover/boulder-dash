@@ -345,3 +345,37 @@ void Firefly::Draw(float cw, float ch)
     if(m_animationSequence == 8)
         m_animationSequence = 0;
 }
+
+Explosion::~Explosion()
+{
+}
+
+void Explosion::Draw(float cw, float ch)
+{
+    glLoadIdentity();
+
+    glTranslatef(m_coordinates.m_x, m_coordinates.m_y, 0);
+
+    glColor3f(1.0, 1.0, 1.0);
+
+    glBindTexture(GL_TEXTURE_2D, *m_texID);
+
+    glBegin(GL_QUADS);
+        glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*7);
+        glVertex2f(0, 0);
+        glTexCoord2f((1.0f/8*(m_animationSequence+1)), 1.0f/12*7);
+        glVertex2f(cw, 0);
+        glTexCoord2f((1.0f/8*(m_animationSequence+1)), 1.0f/12*8);
+        glVertex2f(cw, ch);
+        glTexCoord2f((1.0f/8*m_animationSequence), 1.0f/12*8);
+        glVertex2f(0, ch);
+    glEnd();
+
+    m_animationSequence--;
+
+    if(m_animationSequence == 3)
+    {
+      m_done = true; // we've finished exploding - flag ourselves for removal
+      m_animationSequence = 7;       
+    }
+}

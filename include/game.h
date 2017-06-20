@@ -54,8 +54,13 @@ protected:
   Sprite* GetRight(Sprite* s); // right of given sprite
   Sprite* GetBottomRight(Sprite* s); // bottom-right of given sprite
   Sprite* GetBottomLeft(Sprite* s); // bottom-left of given sprite
+  Sprite* GetTopRight(Sprite* s); // top-right of given sprite
+  Sprite* GetTopLeft(Sprite* s); // top-left of given sprite
+
+  std::pair<std::vector<Sprite*>, std::vector<Coordinates>> GetSurrounding(Sprite* s); // get sprites/empty coords surrounding this one
 
   void DestroyObject(Sprite* s); // destroy a game object
+  void DestroyExplosion(Sprite* s); // destroy an explosion
 
   // Attributes
   Window* window; // our game instance window helper class
@@ -67,6 +72,7 @@ protected:
   TextureSheet font; // texture helper class for font
 
   std::vector<Sprite*> game_objects; // all game sprites/objects in current cave
+  std::vector<Explosion*> explosions; // keep seperate track of explosions so we know when to reload our cave
   Player* rockford; // rockford sprite/object for current cave
   Exit* exit; // exit sprite/object for current cave
   Coordinates start; // entrance to the current cave
@@ -77,6 +83,7 @@ protected:
   bool quit; // mainloop quit flag
   bool at_menu; // true if we're in the menus
   bool player_at_exit; // true if rockford is at the cave exit
+  bool explode; // rockford has died in an explosion and we're waiting for explosion animations to finish
 
   int total_score; // total score throughout playlist
   int diamonds_collected; // the amount of diamonds collected per cave

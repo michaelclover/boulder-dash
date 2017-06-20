@@ -2,6 +2,7 @@
 
 Game::Game(const std::string title, const int width, const int height)
 {
+  explode = false;
   diamonds_collected = 0;
   total_score = 0;
   player_at_exit = false;
@@ -110,7 +111,7 @@ void Game::Update()
   if(player_at_exit != true)
   {
       // Process keyboard events
-      if(keys[SDLK_w] == true)
+      if(keys[SDLK_w] == true && rockford != nullptr)
       {
         // move rockford up
         Sprite* s = GetAbove(rockford);
@@ -135,7 +136,7 @@ void Game::Update()
           player_at_exit = true;
         }
       }
-      if(keys[SDLK_a] == true)
+      if(keys[SDLK_a] == true && rockford != nullptr)
       {
         // move rockford left
         Sprite* s = GetLeft(rockford);
@@ -168,7 +169,7 @@ void Game::Update()
           player_at_exit = true;
         }
       }
-      if(keys[SDLK_s] == true)
+      if(keys[SDLK_s] == true && rockford != nullptr)
       {
         // move rockford down
         Sprite* s = GetBelow(rockford);
@@ -193,7 +194,7 @@ void Game::Update()
           player_at_exit = true;
         }
       }
-      if(keys[SDLK_d] == true)
+      if(keys[SDLK_d] == true && rockford != nullptr)
       {
         // move rockford right
         Sprite* s = GetRight(rockford);
@@ -227,13 +228,28 @@ void Game::Update()
         }
       }
 
+      if(!explosions.empty())
+      {
+        for(int i = 0; i < explosions.size(); ++i)
+        {
+          if(explosions[i]->m_done)
+            DestroyExplosion(explosions[i]);
+        }
+      }
+
+      if(explode && explosions.empty())
+      {
+        LoseLife();
+        return;
+      }
+
       if(cave_time != 0)
       {
         cave_time = cave_timer->GetTicks() / 1000 - caves[caves_index - 1].time; // caves_index - 1 refers to the current cave
       }
       else if(cave_time == 0)
       {
-        LoseLife(); // handle player death and respawn
+        explode = true; // handle player death and respawn
       }
 
       // Process all game objects
@@ -245,21 +261,26 @@ void Game::Update()
           {
             Sprite* s = GetBelow(i); // get sprite below
             Coordinates c = i->m_coordinates; // keep coordinates before moving
-            bool destroy = false; // should the boulder be destroyed after updating?
-            if(s == nullptr) // nothing's there
+            if(s == nullptr && !i->m_velocity) // nothing's there, skip frame
             {
-              i->m_coordinates.m_y += ch; // move boulder down
+              i->m_velocity = true;
+              //i->m_coordinates.m_y += ch; // move boulder down
+            }
+            else if(s == nullptr && i->m_velocity)
+            {
+              i->m_coordinates.m_y += ch;
             }
             else if(s->m_type == SpriteType::Player) // player is below
             {
               if(i->m_velocity == true) // player is below and boulder has velocity
               {
-                destroy = true; // destroy boulder after updating
-                LoseLife(); // handle player death and respawn
+                explode = true; // handle player death and respawn
+                break;
               }
             }
             else // check to see if below object is rounded and bottom left or right is empty
             {
+              i->m_velocity = false;
               if(s->m_rounded == true) // below object is rounded
               {
                 Sprite* left = GetLeft(i); // get sprite to left of boulder
@@ -268,6 +289,7 @@ void Game::Update()
                   Sprite* below = GetBottomLeft(i); // get sprite in bottom left
                   if(below == nullptr) // nothing's in bottom left
                   {
+                    i->m_velocity = true;
                     i->m_coordinates.m_x -= cw; // move boulder left
                   }
                 }
@@ -279,25 +301,12 @@ void Game::Update()
                     Sprite* below = GetBottomRight(i); // get sprite in bottom right
                     if(below == nullptr) // nothing's in bottom right
                     {
+                      i->m_velocity = true;
                       i->m_coordinates.m_x += cw; // move boulder right
                     }
                   }
                 }
               }
-            }
-
-            if(c.m_x == i->m_coordinates.m_x && c.m_y == i->m_coordinates.m_y) // boulder has remained stationary
-            {
-              i->m_velocity = false;
-            }
-            else // boulder has moved this tick
-            {
-              i->m_velocity = true;
-            }
-
-            if(destroy == true) // object has flagged itself for destruction
-            {
-              DestroyObject(i);
             }
           }
           break;
@@ -306,8 +315,12 @@ void Game::Update()
           {
             Sprite* s = GetBelow(i); // get sprite below
             Coordinates c = i->m_coordinates; // keep coordinates before moving
-            bool destroy = false; // should the boulder be destroyed after updating?
-            if(s == nullptr) // nothing's there
+            if(s == nullptr && !i->m_velocity) // nothing's there, skip frame
+            {
+              i->m_velocity = true;
+              //i->m_coordinates.m_y += ch; // move boulder down
+            }
+            else if(s == nullptr && i->m_velocity)
             {
               i->m_coordinates.m_y += ch; // move boulder down
             }
@@ -315,12 +328,12 @@ void Game::Update()
             {
               if(i->m_velocity == true) // player is below and boulder has velocity
               {
-                destroy = true; // destroy boulder after updating
-                LoseLife(); // handle player death and respawn
+                explode = true; // handle player death and respawn
               }
             }
             else // check to see if below object is rounded and bottom left or right is empty
             {
+              i->m_velocity = false;
               if(s->m_rounded == true) // below object is rounded
               {
                 Sprite* left = GetLeft(i); // get sprite to left of boulder
@@ -329,6 +342,7 @@ void Game::Update()
                   Sprite* below = GetBottomLeft(i); // get sprite in bottom left
                   if(below == nullptr) // nothing's in bottom left
                   {
+                    i->m_velocity = true;
                     i->m_coordinates.m_x -= cw; // move boulder left
                   }
                 }
@@ -340,25 +354,12 @@ void Game::Update()
                     Sprite* below = GetBottomRight(i); // get sprite in bottom right
                     if(below == nullptr) // nothing's in bottom right
                     {
+                      i->m_velocity = true;
                       i->m_coordinates.m_x += cw; // move boulder right
                     }
                   }
                 }
               }
-            }
-
-            if(c.m_x == i->m_coordinates.m_x && c.m_y == i->m_coordinates.m_y) // boulder has remained stationary
-            {
-              i->m_velocity = false;
-            }
-            else // boulder has moved this tick
-            {
-              i->m_velocity = true;
-            }
-
-            if(destroy == true) // object has flagged itself for destruction
-            {
-              DestroyObject(i);
             }
           }
           break;
@@ -371,9 +372,10 @@ void Game::Update()
 
           case SpriteType::Butterfly:
           {
+            Butterfly* bf = (Butterfly*)i;
+
             // check if we're next to amoeba or rockford for exploding
 
-            Butterfly* bf = (Butterfly*)i;
             Direction d = bf->m_direction;
             if(d == Direction::Left) // butterfly is facing left
             {
@@ -448,9 +450,74 @@ void Game::Update()
 
           case SpriteType::Firefly:
           {
+            Firefly* ff = (Firefly*)i;
+
             // check if we're next to amoeba or rockford for exploding
 
-            Firefly* ff = (Firefly*)i;
+            Sprite* a = GetAbove(ff);
+            Sprite* r = GetRight(ff);
+            Sprite* l = GetLeft(ff);
+            Sprite* b = GetBelow(ff);
+            bool player = false;
+
+            // check whether we should explode
+            if(a != nullptr)
+            {
+              if(a->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(r != nullptr)
+            {
+              if(r->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(l != nullptr)
+            {
+              if(l->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(b != nullptr)
+            {
+              if(b->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+
+            if(explode && player) // we should explode
+            {
+              std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(ff);
+              for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+              {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                  DestroyObject(it);
+              }
+              for(auto& its : spri.second) // create explosion in empty tiles
+              {
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                explosions.push_back(e);
+                game_objects.push_back(e);
+              }
+
+              Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, ff->m_coordinates.m_x, ff->m_coordinates.m_y);
+              explosions.push_back(e);
+              game_objects.push_back(e);
+              DestroyObject(ff);
+              break; // we're done with the firefly
+            }
+
             Direction d = ff->m_direction;
             if(d == Direction::Left) // firefly is facing left
             {
@@ -692,6 +759,7 @@ void Game::LoadNextCave()
   for(int i = 0; i < game_objects.size(); ++i)
     delete game_objects[i];
   game_objects.clear();
+  explosions.clear();
 
   diamonds_collected = 0;
   player_at_exit = false;
@@ -844,6 +912,7 @@ bool Game::HandleInput(SDL_Event& event)
                   case SDLK_a: keys[SDLK_a] = true; rockford->m_direction = 4; break;
                   case SDLK_s: keys[SDLK_s] = true; rockford->m_direction = 5; break;
                   case SDLK_d: keys[SDLK_d] = true; rockford->m_direction = 5; break;
+                  case SDLK_ESCAPE: LoseLife(); break; // restart cave
           }
       }
 
@@ -870,12 +939,13 @@ bool Game::HandleInput(SDL_Event& event)
 
 void Game::LoseLife()
 {
+  explode = false; // reset flag - rockford will be reborn
   lives -= 1; // remove life
   if(lives == 0)
   {
     // game over - to main menu
   }
-  rockford->m_coordinates = start; // move back to cave entrance
+  //rockford->m_coordinates = start; // move back to cave entrance
   cave_time = caves[caves_index - 1].time; // give us some more time
   cave_timer->Stop(); // reset the SDL cave timer
   cave_timer->Start(); // start the SDL cave timer
@@ -962,6 +1032,111 @@ Sprite* Game::GetBottomLeft(Sprite* s)
   return nullptr;
 }
 
+Sprite* Game::GetTopRight(Sprite* s)
+{
+  for(auto& i : game_objects)
+  {
+    if(i->m_coordinates.m_x == s->m_coordinates.m_x + cw &&
+       i->m_coordinates.m_y == s->m_coordinates.m_y - ch)
+    {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+Sprite* Game::GetTopLeft(Sprite* s)
+{
+  for(auto& i : game_objects)
+  {
+    if(i->m_coordinates.m_x == s->m_coordinates.m_x - cw &&
+       i->m_coordinates.m_y == s->m_coordinates.m_y - ch)
+    {
+      return i;
+    }
+  }
+  return nullptr;
+}
+
+std::pair<std::vector<Sprite*>, std::vector<Coordinates>> Game::GetSurrounding(Sprite* s)
+{
+  std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri;
+  Coordinates c;
+
+  if(GetTopLeft(s) != nullptr)
+    spri.first.push_back(GetTopLeft(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x - cw;
+    c.m_y = s->m_coordinates.m_y - ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetAbove(s) != nullptr)
+    spri.first.push_back(GetAbove(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x;
+    c.m_y = s->m_coordinates.m_y - ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetTopRight(s) != nullptr)
+    spri.first.push_back(GetTopRight(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x + cw;
+    c.m_y = s->m_coordinates.m_y - ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetRight(s) != nullptr)
+    spri.first.push_back(GetRight(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x + cw;
+    c.m_y = s->m_coordinates.m_y;
+    spri.second.push_back(c);
+  }
+
+  if(GetBottomRight(s) != nullptr)
+    spri.first.push_back(GetBottomRight(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x + cw;
+    c.m_y = s->m_coordinates.m_y + ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetBelow(s) != nullptr)
+    spri.first.push_back(GetBelow(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x;
+    c.m_y = s->m_coordinates.m_y + ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetBottomLeft(s) != nullptr)
+    spri.first.push_back(GetBottomLeft(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x - cw;
+    c.m_y = s->m_coordinates.m_y + ch;
+    spri.second.push_back(c);
+  }
+
+  if(GetLeft(s) != nullptr)
+    spri.first.push_back(GetLeft(s));
+  else
+  {
+    c.m_x = s->m_coordinates.m_x - cw;
+    c.m_y = s->m_coordinates.m_y;
+    spri.second.push_back(c);
+  }
+  return spri;
+}
+
 void Game::DestroyObject(Sprite* s)
 {
   for(int i = 0; i < game_objects.size(); ++i)
@@ -972,6 +1147,29 @@ void Game::DestroyObject(Sprite* s)
     {
       delete game_objects[i];
       game_objects.erase(game_objects.begin() + i);
+    }
+  }
+}
+
+void Game::DestroyExplosion(Sprite* s)
+{
+  for(int i = 0; i < game_objects.size(); ++i) // first erase it from the game objects
+  {
+    if(game_objects[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
+       game_objects[i]->m_coordinates.m_y == s->m_coordinates.m_y &&
+       game_objects[i]->m_type == SpriteType::Explosion)
+    {
+      game_objects.erase(game_objects.begin() + i);
+    }
+  }
+  for(int i = 0; i < explosions.size(); ++i) // now erase it from the explosions and free up memory
+  {
+    if(explosions[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
+       explosions[i]->m_coordinates.m_y == s->m_coordinates.m_y &&
+       explosions[i]->m_type == SpriteType::Explosion)
+    {
+      delete explosions[i];
+      explosions.erase(explosions.begin() + i);
     }
   }
 }

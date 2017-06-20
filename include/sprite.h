@@ -216,4 +216,22 @@ public:
   Direction m_direction;
 };
 
+class Explosion : public Sprite
+{
+public:
+  Explosion(GLuint *texID, SpriteType t, float x, float y)
+  : Sprite(texID, t, x, y)
+  , m_animationSequence(7)
+  , m_done(false)
+  {
+    m_rounded = false;
+    m_explodable = false;
+    m_consumable = false;
+  }
+  ~Explosion();
+  void Draw(float cw, float ch);
+  int m_animationSequence;
+  bool m_done; // have we finished our explosion animations?
+};
+
 #endif // SPRITE_H

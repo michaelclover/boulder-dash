@@ -53,7 +53,8 @@ enum class SpriteType : uint8_t
   Amoeba,
   Magicwall,
   Butterfly,
-  Firefly
+  Firefly,
+  Explosion
 };
 
 enum class Direction : uint8_t

@@ -170,12 +170,14 @@ public:
   MagicWall(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   , m_animationSequence(4)
+  , m_triggered(false)
   {
 
   }
   ~MagicWall();
   void Draw(float cw, float ch);
   int m_animationSequence;
+  bool m_triggered;
 };
 
 class Butterfly : public Sprite

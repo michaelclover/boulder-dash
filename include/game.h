@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
+#include <random>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>

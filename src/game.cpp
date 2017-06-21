@@ -155,12 +155,18 @@ void Game::Update()
           diamonds_collected += 1;
           DestroyObject(s);
         }
-        else if(s->m_type == SpriteType::Boulder)
+        else if(s->m_type == SpriteType::Boulder && !s->m_velocity) // walking into a stationary boulder
         {
-          Sprite* sr = GetLeft(s); // get sprite at left side of boulder if there is one
-          if(sr == nullptr) // nothing's there - we can try to push it
+          if(GetLeft(s) == nullptr) // nothing is to the left of the boulder we're trying to move
           {
-
+            std::mt19937 rng;
+            rng.seed(std::random_device()());
+            std::uniform_int_distribution<> dis(1, 10); // 1 in 10 chance of moving the boulder
+            if((int)dis(rng) == 1)
+            {
+              rockford->m_coordinates.m_x -= cw; // move rockford left
+              s->m_coordinates.m_x -= cw; // move boulder left
+            }
           }
         }
         else if(s->m_type == SpriteType::Exit && diamonds_collected >= caves[caves_index - 1].coins)
@@ -213,12 +219,18 @@ void Game::Update()
           diamonds_collected += 1;
           DestroyObject(s);
         }
-        else if(s->m_type == SpriteType::Boulder)
+        else if(s->m_type == SpriteType::Boulder && !s->m_velocity) // walking into a stationary boulder
         {
-          Sprite* sr = GetRight(s); // get sprite at right side of boulder if there is one
-          if(sr == nullptr) // nothing's there - we can try to push it
+          if(GetRight(s) == nullptr) // nothing is to the left of the boulder we're trying to move
           {
-
+            std::mt19937 rng;
+            rng.seed(std::random_device()());
+            std::uniform_int_distribution<> dis(1, 10); // 1 in 10 chance of moving the boulder
+            if((int)dis(rng) == 1)
+            {
+              rockford->m_coordinates.m_x += cw; // move rockford right
+              s->m_coordinates.m_x += cw; // move boulder right
+            }
           }
         }
         else if(s->m_type == SpriteType::Exit && diamonds_collected >= caves[caves_index - 1].coins)
@@ -275,6 +287,25 @@ void Game::Update()
               if(i->m_velocity == true) // player is below and boulder has velocity
               {
                 explode = true; // handle player death and respawn
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
                 break;
               }
             }

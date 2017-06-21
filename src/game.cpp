@@ -228,16 +228,16 @@ void Game::Update()
         }
       }
 
-      if(!explosions.empty())
+      if(!explosions.empty()) // clear explosions if they've finished
       {
         for(int i = 0; i < explosions.size(); ++i)
         {
           if(explosions[i]->m_done)
-            DestroyExplosion(explosions[i]);
+            DestroyObject(explosions[i]);
         }
       }
 
-      if(explode && explosions.empty())
+      if(explode && explosions.empty()) // if rockford was set to explode and there's no more explosions running, restart cave
       {
         LoseLife();
         return;
@@ -283,28 +283,15 @@ void Game::Update()
               i->m_velocity = false;
               if(s->m_rounded == true) // below object is rounded
               {
-                Sprite* left = GetLeft(i); // get sprite to left of boulder
-                if(left == nullptr) // nothing's to the left
+                if(GetLeft(i) == nullptr && GetBottomLeft(i) == nullptr) // nothing's to the left & bottom left
                 {
-                  Sprite* below = GetBottomLeft(i); // get sprite in bottom left
-                  if(below == nullptr) // nothing's in bottom left
-                  {
-                    i->m_velocity = true;
-                    i->m_coordinates.m_x -= cw; // move boulder left
-                  }
+                  i->m_velocity = true;
+                  i->m_coordinates.m_x -= cw; // move boulder left
                 }
-                else
+                else if(GetRight(i) == nullptr && GetBottomRight(i) == nullptr) // nothing's to the right & bottom right
                 {
-                  Sprite* right = GetRight(i); // get sprite to right of boulder
-                  if(right == nullptr) // nothing's to the right
-                  {
-                    Sprite* below = GetBottomRight(i); // get sprite in bottom right
-                    if(below == nullptr) // nothing's in bottom right
-                    {
-                      i->m_velocity = true;
-                      i->m_coordinates.m_x += cw; // move boulder right
-                    }
-                  }
+                  i->m_velocity = true;
+                  i->m_coordinates.m_x += cw; // move boulder right
                 }
               }
             }
@@ -336,28 +323,15 @@ void Game::Update()
               i->m_velocity = false;
               if(s->m_rounded == true) // below object is rounded
               {
-                Sprite* left = GetLeft(i); // get sprite to left of boulder
-                if(left == nullptr) // nothing's to the left
+                if(GetLeft(i) == nullptr && GetBottomLeft(i) == nullptr) // nothing's to the left & bottom left
                 {
-                  Sprite* below = GetBottomLeft(i); // get sprite in bottom left
-                  if(below == nullptr) // nothing's in bottom left
-                  {
-                    i->m_velocity = true;
-                    i->m_coordinates.m_x -= cw; // move boulder left
-                  }
+                  i->m_velocity = true;
+                  i->m_coordinates.m_x -= cw; // move boulder left
                 }
-                else
+                else if(GetRight(i) == nullptr && GetBottomRight(i) == nullptr) // nothing's to the right & bottom right
                 {
-                  Sprite* right = GetRight(i); // get sprite to right of boulder
-                  if(right == nullptr) // nothing's to the right
-                  {
-                    Sprite* below = GetBottomRight(i); // get sprite in bottom right
-                    if(below == nullptr) // nothing's in bottom right
-                    {
-                      i->m_velocity = true;
-                      i->m_coordinates.m_x += cw; // move boulder right
-                    }
-                  }
+                  i->m_velocity = true;
+                  i->m_coordinates.m_x += cw; // move boulder right
                 }
               }
             }
@@ -1139,7 +1113,18 @@ std::pair<std::vector<Sprite*>, std::vector<Coordinates>> Game::GetSurrounding(S
 
 void Game::DestroyObject(Sprite* s)
 {
-  for(int i = 0; i < game_objects.size(); ++i)
+  if(s->m_type == SpriteType::Explosion) // first erase from our explosions
+  {
+    for(int i = 0; i < explosions.size(); ++i)
+    {
+      if(explosions[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
+         explosions[i]->m_coordinates.m_y == s->m_coordinates.m_y)
+      {
+        explosions.erase(explosions.begin() + i);
+      }
+    }
+  }
+  for(int i = 0; i < game_objects.size(); ++i) // erase from game objects and free up memory
   {
     if(game_objects[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
        game_objects[i]->m_coordinates.m_y == s->m_coordinates.m_y &&
@@ -1147,29 +1132,6 @@ void Game::DestroyObject(Sprite* s)
     {
       delete game_objects[i];
       game_objects.erase(game_objects.begin() + i);
-    }
-  }
-}
-
-void Game::DestroyExplosion(Sprite* s)
-{
-  for(int i = 0; i < game_objects.size(); ++i) // first erase it from the game objects
-  {
-    if(game_objects[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
-       game_objects[i]->m_coordinates.m_y == s->m_coordinates.m_y &&
-       game_objects[i]->m_type == SpriteType::Explosion)
-    {
-      game_objects.erase(game_objects.begin() + i);
-    }
-  }
-  for(int i = 0; i < explosions.size(); ++i) // now erase it from the explosions and free up memory
-  {
-    if(explosions[i]->m_coordinates.m_x == s->m_coordinates.m_x &&
-       explosions[i]->m_coordinates.m_y == s->m_coordinates.m_y &&
-       explosions[i]->m_type == SpriteType::Explosion)
-    {
-      delete explosions[i];
-      explosions.erase(explosions.begin() + i);
     }
   }
 }

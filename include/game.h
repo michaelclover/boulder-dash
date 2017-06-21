@@ -60,7 +60,6 @@ protected:
   std::pair<std::vector<Sprite*>, std::vector<Coordinates>> GetSurrounding(Sprite* s); // get sprites/empty coords surrounding this one
 
   void DestroyObject(Sprite* s); // destroy a game object
-  void DestroyExplosion(Sprite* s); // destroy an explosion
 
   // Attributes
   Window* window; // our game instance window helper class

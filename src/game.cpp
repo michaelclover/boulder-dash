@@ -244,7 +244,12 @@ void Game::Update()
       {
         for(int i = 0; i < explosions.size(); ++i)
         {
-          if(explosions[i]->m_done)
+          if(explosions[i]->m_done && explosions[i]->m_gem) // explosion's finished, gems require spawning
+          {
+            game_objects.push_back(new Coin(&sprites.m_texID, SpriteType::Coin, explosions[i]->m_coordinates.m_x, explosions[i]->m_coordinates.m_y));
+            DestroyObject(explosions[i]);
+          }
+          else if(explosions[i]->m_done)
             DestroyObject(explosions[i]);
         }
       }
@@ -309,6 +314,35 @@ void Game::Update()
                 break;
               }
             }
+            else if(s->m_type == SpriteType::Butterfly) // butterfly is below
+            {
+              if(i->m_velocity == true) // we have velocity
+              {
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    e->m_gem = true;
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  e->m_gem = true;
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
+                e->m_gem = true;
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
+                break;
+              }
+            }
             else // check to see if below object is rounded and bottom left or right is empty
             {
               i->m_velocity = false;
@@ -332,7 +366,6 @@ void Game::Update()
           case SpriteType::Coin:
           {
             Sprite* s = GetBelow(i); // get sprite below
-            Coordinates c = i->m_coordinates; // keep coordinates before moving
             if(s == nullptr && !i->m_velocity) // nothing's there, skip frame
             {
               i->m_velocity = true;
@@ -342,11 +375,60 @@ void Game::Update()
             {
               i->m_coordinates.m_y += ch; // move boulder down
             }
-            else if(s->m_type == SpriteType::Player) // player is below
+            else if(s->m_type == SpriteType::Player) // player is below - note: we don't spawn diamonds because cave has ended anyway
             {
               if(i->m_velocity == true) // player is below and boulder has velocity
               {
                 explode = true; // handle player death and respawn
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
+                break;
+              }
+            }
+            else if(s->m_type == SpriteType::Butterfly) // butterfly is below
+            {
+              if(i->m_velocity == true) // we have velocity
+              {
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    e->m_gem = true;
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  e->m_gem = true;
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
+                e->m_gem = true;
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
+                break;
               }
             }
             else // check to see if below object is rounded and bottom left or right is empty

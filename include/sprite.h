@@ -186,7 +186,7 @@ public:
   Butterfly(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
   , m_animationSequence(2)
-  , m_direction(Direction::Down)
+  , m_direction(Direction::Right)
   {
     m_rounded = false;
     m_explodable = true;
@@ -223,6 +223,7 @@ public:
   : Sprite(texID, t, x, y)
   , m_animationSequence(7)
   , m_done(false)
+  , m_gem(false)
   {
     m_rounded = false;
     m_explodable = false;
@@ -232,6 +233,7 @@ public:
   void Draw(float cw, float ch);
   int m_animationSequence;
   bool m_done; // have we finished our explosion animations?
+  bool m_gem; // should this explosion produce a gem in its wake?
 };
 
 #endif // SPRITE_H

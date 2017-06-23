@@ -295,10 +295,13 @@ void Game::Update()
                 std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
                 for(auto& it : spri.first) // destroy sprite objects and replace with explosion
                 {
+                  if(it->m_explodable)
+                  {
                     Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
                     explosions.push_back(e);
                     game_objects.push_back(e);
                     DestroyObject(it);
+                  }
                 }
                 for(auto& its : spri.second) // create explosion in empty tiles
                 {
@@ -321,11 +324,14 @@ void Game::Update()
                 std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
                 for(auto& it : spri.first) // destroy sprite objects and replace with explosion
                 {
+                  if(it->m_explodable)
+                  {
                     Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
                     e->m_gem = true;
                     explosions.push_back(e);
                     game_objects.push_back(e);
                     DestroyObject(it);
+                  }
                 }
                 for(auto& its : spri.second) // create explosion in empty tiles
                 {
@@ -337,6 +343,35 @@ void Game::Update()
 
                 Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
                 e->m_gem = true;
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
+                break;
+              }
+            }
+            else if(s->m_type == SpriteType::Firefly) // firefly is below
+            {
+              if(i->m_velocity == true) // we have velocity
+              {
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                  if(it->m_explodable)
+                  {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                  }
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
                 explosions.push_back(e);
                 game_objects.push_back(e);
                 DestroyObject(s);
@@ -383,10 +418,13 @@ void Game::Update()
                 std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
                 for(auto& it : spri.first) // destroy sprite objects and replace with explosion
                 {
+                  if(it->m_explodable)
+                  {
                     Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
                     explosions.push_back(e);
                     game_objects.push_back(e);
                     DestroyObject(it);
+                  }
                 }
                 for(auto& its : spri.second) // create explosion in empty tiles
                 {
@@ -409,11 +447,14 @@ void Game::Update()
                 std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
                 for(auto& it : spri.first) // destroy sprite objects and replace with explosion
                 {
+                  if(it->m_explodable)
+                  {
                     Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
                     e->m_gem = true;
                     explosions.push_back(e);
                     game_objects.push_back(e);
                     DestroyObject(it);
+                  }
                 }
                 for(auto& its : spri.second) // create explosion in empty tiles
                 {
@@ -425,6 +466,35 @@ void Game::Update()
 
                 Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
                 e->m_gem = true;
+                explosions.push_back(e);
+                game_objects.push_back(e);
+                DestroyObject(s);
+                break;
+              }
+            }
+            else if(s->m_type == SpriteType::Firefly) // firefly is below
+            {
+              if(i->m_velocity == true) // we have velocity
+              {
+                std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(s);
+                for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+                {
+                  if(it->m_explodable)
+                  {
+                    Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                    explosions.push_back(e);
+                    game_objects.push_back(e);
+                    DestroyObject(it);
+                  }
+                }
+                for(auto& its : spri.second) // create explosion in empty tiles
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                }
+
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, s->m_coordinates.m_x, s->m_coordinates.m_y);
                 explosions.push_back(e);
                 game_objects.push_back(e);
                 DestroyObject(s);
@@ -462,6 +532,73 @@ void Game::Update()
             Butterfly* bf = (Butterfly*)i;
 
             // check if we're next to amoeba or rockford for exploding
+
+            Sprite* a = GetAbove(bf);
+            Sprite* r = GetRight(bf);
+            Sprite* l = GetLeft(bf);
+            Sprite* b = GetBelow(bf);
+            bool player = false;
+
+            // check whether we should explode
+            if(a != nullptr)
+            {
+              if(a->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(r != nullptr)
+            {
+              if(r->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(l != nullptr)
+            {
+              if(l->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+            if(b != nullptr)
+            {
+              if(b->m_type == SpriteType::Player)
+              {
+                player = true;
+                explode = true;
+              }
+            }
+
+            if(explode && player) // we should explode
+            {
+              std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(bf);
+              for(auto& it : spri.first) // destroy sprite objects and replace with explosion
+              {
+                if(it->m_explodable)
+                {
+                  Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
+                  explosions.push_back(e);
+                  game_objects.push_back(e);
+                  DestroyObject(it);
+                }
+              }
+              for(auto& its : spri.second) // create explosion in empty tiles
+              {
+                Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, its.m_x, its.m_y);
+                explosions.push_back(e);
+                game_objects.push_back(e);
+              }
+
+              Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, bf->m_coordinates.m_x, bf->m_coordinates.m_y);
+              explosions.push_back(e);
+              game_objects.push_back(e);
+              DestroyObject(bf);
+              break; // we're done with the firefly
+            }
 
             Direction d = bf->m_direction;
             if(d == Direction::Left) // butterfly is facing left
@@ -586,10 +723,13 @@ void Game::Update()
               std::pair<std::vector<Sprite*>, std::vector<Coordinates>> spri = GetSurrounding(ff);
               for(auto& it : spri.first) // destroy sprite objects and replace with explosion
               {
+                if(it->m_explodable)
+                {
                   Explosion* e = new Explosion(&sprites.m_texID, SpriteType::Explosion, it->m_coordinates.m_x, it->m_coordinates.m_y);
                   explosions.push_back(e);
                   game_objects.push_back(e);
                   DestroyObject(it);
+                }
               }
               for(auto& its : spri.second) // create explosion in empty tiles
               {

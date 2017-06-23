@@ -47,7 +47,7 @@ public:
   : Sprite(texID, t, x, y)
   {
     m_rounded = false;
-    m_explodable = false;
+    m_explodable = true;
     m_consumable = true;
   }
   ~Dirt();
@@ -61,7 +61,7 @@ public:
   : Sprite(texID, t, x, y)
   {
     m_rounded = true;
-    m_explodable = false;
+    m_explodable = true;
     m_consumable = true;
   }
   ~Wall();
@@ -75,7 +75,7 @@ public:
   : Sprite(texID, t, x, y)
   {
     m_rounded = true;
-    m_explodable = false;
+    m_explodable = true;
     m_consumable = true;
   }
   ~Boulder();
@@ -90,7 +90,7 @@ public:
   , m_animationSequence(0)
   {
     m_rounded = true;
-    m_explodable = false;
+    m_explodable = true;
     m_consumable = true;
   }
   ~Coin();

@@ -24,6 +24,14 @@
       "wall_start": 0,
       "wall_end": 0,
       "amoeba_growth": 0
+    },
+    {
+      "cave_name": "4.txt",
+      "allocated_time": 150,
+      "diamonds_req": 24,
+      "wall_start": 0,
+      "wall_end": 0,
+      "amoeba_growth": 0
     }
   ]
 }

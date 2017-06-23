@@ -4,34 +4,29 @@
     {
       "cave_name": "1.txt",
       "allocated_time": 150,
-      "diamonds_req": 12,
-      "wall_start": 0,
-      "wall_end": 0,
-      "amoeba_growth": 0
+      "diamonds_req": 12
     },
     {
       "cave_name": "2.txt",
       "allocated_time": 150,
-      "diamonds_req": 10,
-      "wall_start": 0,
-      "wall_end": 0,
-      "amoeba_growth": 0
+      "diamonds_req": 10
     },
     {
       "cave_name": "3.txt",
       "allocated_time": 10,
-      "diamonds_req": 6,
-      "wall_start": 0,
-      "wall_end": 0,
-      "amoeba_growth": 0
+      "diamonds_req": 6
     },
     {
       "cave_name": "4.txt",
       "allocated_time": 150,
-      "diamonds_req": 24,
-      "wall_start": 0,
-      "wall_end": 0,
-      "amoeba_growth": 0
+      "diamonds_req": 2
+    },
+    {
+      "cave_name": "5.txt",
+      "allocated_time": 100,
+      "diamonds_req": 30,
+      "wall_start": 90,
+      "wall_end": 70
     }
   ]
 }

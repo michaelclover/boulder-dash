@@ -169,7 +169,7 @@ class MagicWall : public Sprite
 public:
   MagicWall(GLuint *texID, SpriteType t, float x, float y)
   : Sprite(texID, t, x, y)
-  , m_animationSequence(4)
+  , m_animationSequence(3)
   , m_triggered(false)
   {
 

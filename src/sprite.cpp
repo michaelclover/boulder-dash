@@ -277,10 +277,10 @@ void MagicWall::Draw(float cw, float ch)
     if(m_triggered)
       m_animationSequence++;
 
-    if(!m_triggered && m_animationSequence != 4)
-      m_animationSequence = 4;
+    if(!m_triggered && m_animationSequence != 3)
+      m_animationSequence = 3;
 
-    if(m_animationSequence == 8)
+    if(m_animationSequence == 8 && m_triggered)
         m_animationSequence = 4;
 }
 
@@ -376,6 +376,6 @@ void Explosion::Draw(float cw, float ch)
     if(m_animationSequence == 3)
     {
       m_done = true; // we've finished exploding - flag ourselves for removal
-      m_animationSequence = 7;       
+      m_animationSequence = 7;
     }
 }

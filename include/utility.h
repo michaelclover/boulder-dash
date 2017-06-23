@@ -70,6 +70,9 @@ struct Cave
   std::string name;
   int coins;
   int time;
+  int ws; // optional -- magicwall start time
+  int we; // optional -- magicwall end time
+  int growth; // optional -- amoeba growth rate
 };
 
 #endif // UTILITY_H

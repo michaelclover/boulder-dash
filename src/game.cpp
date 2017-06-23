@@ -269,6 +269,7 @@ void Game::Update()
         explode = true; // handle player death and respawn
       }
 
+      int actual_time = -(cave_time = cave_timer->GetTicks() / 1000 - caves[caves_index - 1].time);
       // Process all game objects
       for(auto& i : game_objects)
       {
@@ -375,6 +376,15 @@ void Game::Update()
                 explosions.push_back(e);
                 game_objects.push_back(e);
                 DestroyObject(s);
+                break;
+              }
+            }
+            else if(s->m_type == SpriteType::Magicwall && ((MagicWall*)s)->m_triggered) // time to create some diamonds
+            {
+              if(GetBelow(s) == nullptr) // nothing's below the wall
+              {
+                game_objects.push_back(new Coin(&sprites.m_texID, SpriteType::Coin, s->m_coordinates.m_x, s->m_coordinates.m_y + ch));
+                DestroyObject(i);
                 break;
               }
             }
@@ -817,9 +827,18 @@ void Game::Update()
           }
           break;
 
-          case SpriteType::Wall: // in case magic walls are enabled for this cave
+          case SpriteType::Magicwall:
           {
-
+            if(actual_time <= caves[caves_index - 1].ws && actual_time > caves[caves_index - 1].we &&
+               caves[caves_index - 1].ws != 0 && caves[caves_index - 1].we != 0) // turn magic on
+            {
+              ((MagicWall*)i)->m_triggered = true;
+            }
+            else if(actual_time <= caves[caves_index - 1].we &&
+                    caves[caves_index - 1].ws != 0 && caves[caves_index - 1].we != 0) // turn magic off
+            {
+              ((MagicWall*)i)->m_triggered = false;
+            }
           }
           break;
         }
@@ -972,6 +991,36 @@ void Game::LoadPlaylist()
     const rapidjson::Value& alloc_time = (*itr)["allocated_time"];
     const rapidjson::Value& diamonds_req = (*itr)["diamonds_req"];
 
+    if((*itr).HasMember("wall_start")) // when magic walls should become 'magic' - relative to tick-down cave timer
+    {
+      const rapidjson::Value& wall_start = ((*itr)["wall_start"]);
+      c.ws = wall_start.GetInt();
+    }
+    else
+    {
+      c.ws = 0;
+    }
+
+    if((*itr).HasMember("wall_end")) // when magic walls should become 'unmagic' - relative to tick-down cave timer
+    {
+      const rapidjson::Value& wall_end = ((*itr)["wall_end"]);
+      c.we = wall_end.GetInt();
+    }
+    else
+    {
+      c.we = 0;
+    }
+
+    if((*itr).HasMember("amoeba_growth")) // rate at which amoeba should grow
+    {
+      const rapidjson::Value& amoeba_growth = ((*itr)["amoeba_growth"]);
+      c.growth = amoeba_growth.GetInt();
+    }
+    else
+    {
+      c.growth = 0;
+    }
+
     c.name = cave_name.GetString();
     c.time = alloc_time.GetInt();
     c.coins = diamonds_req.GetInt();
@@ -1076,6 +1125,11 @@ void Game::LoadNextCave()
 
         case 'f':
           game_objects.push_back(new Firefly(texID, SpriteType::Firefly, x, y));
+          x += cw;
+          break;
+
+        case 'm':
+          game_objects.push_back(new MagicWall(texID, SpriteType::Magicwall, x, y));
           x += cw;
           break;
 

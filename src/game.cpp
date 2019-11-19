@@ -8,6 +8,7 @@ Game::Game(const std::string title, const int width, const int height)
   player_at_exit = false;
   caves_index = 0;
   lives = 0; // will be loaded from play.json
+  quit = false;
 
   cw = ORTHO_WIDTH / 40;
   ch = ORTHO_HEIGHT / 22;

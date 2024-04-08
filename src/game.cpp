@@ -1226,6 +1226,8 @@ void Game::LoseLife()
   if(lives == 0)
   {
     // game over - to main menu
+    caves_index = caves.size();
+    LoadNextCave();
   }
   //rockford->m_coordinates = start; // move back to cave entrance
   cave_time = caves[caves_index - 1].time; // give us some more time
